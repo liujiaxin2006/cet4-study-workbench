@@ -1,0 +1,11 @@
+{
+  "name": "四级上岸英语学习工作台",
+  "short_name": "四级上岸",
+  "description": "每日词汇、阅读、听力与翻译训练的四级备考工作台",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f3ec",
+  "theme_color": "#275c46",
+  "lang": "zh-CN"
+}
