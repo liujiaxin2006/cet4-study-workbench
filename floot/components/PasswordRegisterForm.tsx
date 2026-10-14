@@ -33,6 +33,8 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { onLogin } = useAuth();
   const navigate = useNavigate();
 
@@ -47,11 +49,18 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
 
   const handleSubmit = async (data: z.infer<typeof schema>) => {
     setError(null);
+    if (data.email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+      setError("两次输入的邮箱不一致，请检查后再试。");
+      return;
+    }
+    if (data.password !== confirmPassword) {
+      setError("两次输入的密码不一致，请检查后再试。");
+      return;
+    }
     setIsLoading(true);
 
     try {
       const result = await postRegister(data);
-      console.log("Registration successful for:", data.email);
       onLogin(result.user);
       navigate("/");
     } catch (err) {
@@ -60,19 +69,14 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
       if (err instanceof Error) {
         const errorMessage = err.message;
 
-        if (errorMessage.includes("Email already in use")) {
+        if (errorMessage.includes("已注册")) {
           setError(
             "这个邮箱已注册，请直接登录。"
           );
-        } else if (errorMessage.toLowerCase().includes("display name")) {
-          setError("请输入昵称。");
-        } else if (
-          errorMessage.includes("display") ||
-          errorMessage.includes("name")
-        ) {
-          setError("请检查昵称内容后再试。");
+        } else if (errorMessage.includes("暂时较多")) {
+          setError(errorMessage);
         } else {
-          setError("注册失败，请检查邮箱和密码后再试。");
+          setError("注册失败，请检查输入或稍后再试。");
         }
       } else {
         console.log("Unknown error type:", err);
@@ -108,8 +112,22 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
               }
             />
           </FormControl>
+          <FormDescription>目前不发送验证邮件，请确认邮箱填写正确。</FormDescription>
           <FormMessage />
         </FormItem>
+
+        <div className={styles.confirmField}>
+          <label htmlFor="register-confirm-email">再次输入邮箱</label>
+          <Input
+            id="register-confirm-email"
+            placeholder="再输入一次，避免写错后无法找回账号"
+            type="email"
+            autoComplete="off"
+            value={confirmEmail}
+            onChange={(e) => setConfirmEmail(e.target.value)}
+            required
+          />
+        </div>
 
         <FormItem name="displayName">
           <FormLabel>昵称</FormLabel>
@@ -137,7 +155,7 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
           <FormControl>
             <Input
               type="password"
-              placeholder="至少 8 位，含大小写字母和数字"
+              placeholder="至少 10 位，建议使用独特的长密码"
               autoComplete="new-password"
               value={form.values.password || ""}
               onChange={(e) =>
@@ -149,10 +167,23 @@ export const PasswordRegisterForm: React.FC<PasswordRegisterFormProps> = ({
             />
           </FormControl>
           <FormDescription>
-            请设置至少 8 位密码，包含大小写字母和数字
+            请设置至少 10 位密码；目前没有邮件找回功能，请妥善保存。
           </FormDescription>
           <FormMessage />
         </FormItem>
+
+        <div className={styles.confirmField}>
+          <label htmlFor="register-confirm-password">再次输入密码</label>
+          <Input
+            id="register-confirm-password"
+            type="password"
+            placeholder="再输入一次密码"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
 
         <Button
           type="submit"

@@ -5,7 +5,7 @@ const secret = process.env.JWT_SECRET;
 
 export const SessionExpirationSeconds = 60 * 60 * 24 * 7; // 1 week
 // Probability to run cleanup (10%)
-export const CleanupProbability = 0.1;
+export const CleanupProbability = 0.01;
 
 // Only send the ID in the cookie to the client
 // We should store id -> user id and user data mapping in our database for max security
@@ -77,7 +77,7 @@ export async function setServerSession(
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("1d")
+    .setExpirationTime(`${SessionExpirationSeconds}s`)
     .sign(encoder.encode(secret));
 
   const cookieValue = [

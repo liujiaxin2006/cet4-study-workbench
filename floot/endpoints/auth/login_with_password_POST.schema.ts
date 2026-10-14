@@ -3,7 +3,7 @@ import { User } from "../../helpers/User";
 import superjson from "superjson";
 
 export const schema = z.object({
-  email: z.string().email("Email is required"),
+  email: z.string().trim().toLowerCase().email("请输入有效的邮箱地址"),
   password: z.string().min(1, "Password is required"),
 });
 

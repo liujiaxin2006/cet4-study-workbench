@@ -41,7 +41,7 @@ export async function handle(request: Request) {
     const { email, password } = schema.parse(json);
 
     // Normalize email to lowercase for consistent handling
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
     const now = new Date();
     const windowStart = new Date(
       now.getTime() - RATE_LIMIT_CONFIG.lockoutWindowMinutes * 60 * 1000
@@ -107,7 +107,7 @@ export async function handle(request: Request) {
           "users.role",
           "userPasswords.passwordHash",
         ])
-        .where(sql`LOWER(users.email)`, "=", normalizedEmail)
+        .where(sql`LOWER(BTRIM(users.email))`, "=", normalizedEmail)
         .limit(1)
         .execute();
 

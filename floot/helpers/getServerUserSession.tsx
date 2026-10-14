@@ -42,6 +42,7 @@ export async function getServerUserSession(request: Request) {
       "users.avatarUrl",
     ])
     .where("sessions.id", "=", session.id)
+    .where("sessions.expiresAt", ">", new Date())
     .limit(1)
     .execute();
 
@@ -58,13 +59,17 @@ export async function getServerUserSession(request: Request) {
     role: result.role,
   };
 
-  // Update the session's lastAccessed timestamp
+  // Persist activity at most once per five minutes, avoiding a database write
+  // for every 30-second progress refresh on every open device.
   const now = new Date();
-  await db
-    .updateTable("sessions")
-    .set({ lastAccessed: now })
-    .where("id", "=", session.id)
-    .execute();
+  const lastPersisted = result.sessionLastAccessed ? new Date(result.sessionLastAccessed).getTime() : 0;
+  if (now.getTime() - lastPersisted >= 5 * 60 * 1000) {
+    await db
+      .updateTable("sessions")
+      .set({ lastAccessed: now })
+      .where("id", "=", session.id)
+      .execute();
+  }
 
   return {
     user: user satisfies User,

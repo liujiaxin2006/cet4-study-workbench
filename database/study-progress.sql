@@ -7,3 +7,7 @@ CREATE TABLE IF NOT EXISTS study_progress (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Run only after confirming there are no users with the same email ignoring case/whitespace.
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_normalized_unique ON users ((lower(btrim(email))));
+CREATE INDEX IF NOT EXISTS users_created_at_idx ON users (created_at);
+
