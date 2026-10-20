@@ -23,12 +23,25 @@
 .badge { padding: 5px 8px; border-radius: var(--radius-full); background: var(--surface); color: var(--muted-foreground); font-size: 10px; white-space: nowrap; }
 .card ul { margin: 0; padding: 0 20px 18px 42px; color: var(--muted-foreground); font-size: 13px; line-height: 1.75; }
 .card li { padding: 3px 0; }
+.drills { display: grid; gap: 14px; }
+.drills h3 { margin: 0; font-family: var(--font-family-display); font-size: 24px; }
+.drills > div:first-child p { margin: 6px 0 0; color: var(--muted-foreground); font-size: 13px; line-height: 1.6; }
+.drillGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.drill { padding: 17px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); }
+.drillLabel { color: var(--primary); font-size: 11px; font-weight: 700; }
+.drill > p { margin: 10px 0; font-size: 13px; line-height: 1.7; }
+.drill ul { margin: 8px 0 14px; padding-left: 20px; color: var(--muted-foreground); font-size: 12px; line-height: 1.7; }
+.answer { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--border); }
+.answer summary { cursor: pointer; color: var(--primary); font-size: 12px; font-weight: 700; }
+.answer p { margin: 8px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.7; }
+.answer strong { color: var(--foreground); }
 .sources { display: grid; gap: 8px; padding: 18px 20px; border-top: 1px solid var(--border); color: var(--muted-foreground); font-size: 12px; line-height: 1.7; }
 .sources strong { color: var(--foreground); }
 .sources a { color: var(--primary); }
 .sources p { margin: 4px 0 0; }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
+  .drillGrid { grid-template-columns: 1fr; }
   .rowHead, .row { grid-template-columns: .65fr 2fr .5fr; gap: 8px; padding: 10px; font-size: 11px; }
   .rowHead span:last-child, .row span:last-child { display: none; }
   .card summary { gap: 8px; padding: 12px; }

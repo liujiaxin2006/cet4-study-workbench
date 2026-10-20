@@ -1,4 +1,5 @@
-import { BookOpenCheck, Headphones, Languages, ListChecks, PenLine, Sparkles } from "lucide-react";
+import { BookOpenCheck, Headphones, Languages, ListChecks, PenLine, Sparkles, Volume2 } from "lucide-react";
+import { Button } from "./Button";
 import styles from "./ExamCoverage.module.css";
 
 const examParts = [
@@ -15,6 +16,15 @@ const points = [
   { icon: PenLine, title: "写作", badge: "30 分钟 · 15%", items: ["先审题：明确主题、对象、写作任务和必须覆盖的要点，再列 2—3 段提纲。", "常见训练任务：观点表达与论证、现象原因与建议、问题解决、图表或材料信息概括、应用场景写作。具体以当次题目要求为准。", "结构：开头回应题目；主体每段只讲一个理由并给解释或例子；结尾总结或提出行动。", "语言得分点：主谓一致、时态稳定、冠词/单复数、连接词准确、句式有变化但不冒险。", "交卷前检查：是否答全题目要点、句子是否完整、拼写标点、重复用词、字迹与篇幅。背模板不能替代切题。"] },
   { icon: Languages, title: "汉译英段落", badge: "30 分钟 · 15%", items: ["先通读段落，划分意群；确定主干，再处理修饰信息，不要逐词硬翻。", "重点语法：时态与语态、主谓一致、定语/状语从句、非谓语、比较结构、名词单复数和冠词。", "常见主题素材：传统文化与节日、教育与学习、科技与生活、社会发展、环境与健康、城市与经济。它们是练习主题分类，不代表官方预测。", "检查：信息是否完整、逻辑关系是否准确、专名/数字是否遗漏、拼写和搭配是否自然。遇到不会的词先换成正确的简单表达。"] },
   { icon: ListChecks, title: "考前 7 周训练顺序", badge: "每天约 60 分钟", items: ["第 1—2 周：补高频基础词与核心语法；阅读训练定位证据；听力练数字、转折和主旨。", "第 3—4 周：按选词、匹配、仔细阅读分题型练；每周至少完成 2 次短写作或段落翻译。", "第 5—6 周：做整套或分模块限时训练；记录每类错因，优先补最常错的一类。", "第 7 周：回做错题与薄弱题型，熟悉流程和时间分配；保持睡眠，避免临时堆新内容。", "日常安排保持你的 20 分钟词汇 + 20 分钟阅读 + 15 分钟听力 + 5 分钟写译；整套模拟另找连续时间完成。"] },
+];
+
+const miniDrills = [
+  { type: "选词填空", prompt: "The new bus service has made commuting more ____ for residents.", options: ["A. convenient", "B. accurate", "C. private", "D. severe"], answer: "A. convenient", explanation: "句意是新公交服务让居民通勤更方便。make + 宾语 + 形容词；其他选项语义不合。" },
+  { type: "长篇匹配", prompt: "段落：A community garden began with only six families. After neighbors started sharing tools and teaching children how to grow vegetables, more residents joined. The garden later became a regular place for people to meet.", options: ["匹配信息：社区项目如何加强邻里联系。", "匹配信息：城市交通费用为何上涨。"], answer: "匹配“社区项目如何加强邻里联系”。", explanation: "sharing tools、teaching children、a place to meet 都指向邻里互动。做匹配时找语义同义替换，不要只找相同单词。" },
+  { type: "仔细阅读", prompt: "Online courses allow students to study at flexible times. However, some learners find it difficult to stay motivated without regular contact with teachers. Short weekly meetings can help them receive feedback and keep up with their studies.", options: ["A. 灵活的时间安排能解决所有学习困难。", "B. 定期交流和反馈能帮助部分线上学习者坚持。", "C. 线上课程不适合任何学生。", "D. 教师反馈会降低学习积极性。"], answer: "B", explanation: "证据是 Short weekly meetings can help them receive feedback and keep up with their studies。A、C、D 都比原文说得更绝对或与原文相反。" },
+  { type: "听力理解", prompt: "先听短句再回答：What helped the team finish the project on time?", script: "The project was delayed at first. The team later divided the work into smaller tasks and reviewed its progress each week. As a result, members found problems early and finished the project on time.", options: ["A. 每周检查进度并及早发现问题。", "B. 临时增加了项目预算。", "C. 取消了所有小组会议。"], answer: "A", explanation: "抓因果信号 As a result；团队每周检查进度，及早发现问题，最后按时完成。" },
+  { type: "写作审题", prompt: "Writing task: Some students think university students should take part in volunteer work. Do you agree? Give reasons and explain how students can balance volunteering with study.", options: ["动笔前先列：立场；两个理由或一个理由加例子；如何安排学习与志愿服务。"], answer: "参考提纲：同意适度参与；可服务社区并锻炼沟通/协作；用固定时段安排志愿活动，优先完成课程任务。", explanation: "题目有两个明确任务：表明是否同意并说明理由、解释如何平衡。漏答其中一个会偏题。答案是提纲示例，可形成自己的论证。" },
+  { type: "段落翻译", prompt: "请先译成英文：近年来，越来越多的城市建设了公共自行车系统。它们为短途出行提供了便利，也有助于减少道路拥堵。", options: ["先拆为三层信息：近年来的趋势；公共自行车的用途；它带来的另一项好处。"], answer: "参考译文：In recent years, more and more cities have built public bicycle systems. They make short-distance travel more convenient and also help reduce traffic congestion.", explanation: "注意现在完成时表达近年来的变化；make + 宾语 + 形容词；help 后接动词原形。公共自行车也可按语境译为 bike-sharing systems。" },
 ];
 
 export function ExamCoverage() {
@@ -42,6 +52,16 @@ export function ExamCoverage() {
         <ul>{items.map(item => <li key={item}>{item}</li>)}</ul>
       </details>)}
     </div>
+    <section className={styles.drills}>
+      <div><h3>六类题型原创微练</h3><p>先独立作答，再展开解析。题目用于练考点，不是历年原题。</p></div>
+      <div className={styles.drillGrid}>{miniDrills.map((drill, index) => <article className={styles.drill} key={drill.type}>
+        <span className={styles.drillLabel}>{String(index + 1).padStart(2, "0")} · {drill.type}</span>
+        <p>{drill.prompt}</p>
+        {drill.script && <Button variant="outline" size="sm" onClick={() => { if (!("speechSynthesis" in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(drill.script); utterance.lang = "en-US"; utterance.rate = 0.85; window.speechSynthesis.speak(utterance); }}><Volume2 size={15}/>播放短句</Button>}
+        {drill.options && <ul>{drill.options.map(option => <li key={option}>{option}</li>)}</ul>}
+        <details className={styles.answer}><summary>查看答案与解析</summary><p><strong>{drill.answer}</strong> {drill.explanation}</p></details>
+      </article>)}</div>
+    </section>
     <footer className={styles.sources}>
       <strong>官方参考</strong>
       <a href="https://cet.neea.edu.cn/html1/report/16123/196-1.htm" target="_blank" rel="noreferrer">中国教育考试网：全国大学英语四级笔试（CET4）</a>
