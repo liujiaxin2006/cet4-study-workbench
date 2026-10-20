@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/Tabs";
 import { useAuth } from "../helpers/useAuth";
 import { StudyState } from "../endpoints/study-progress_GET.schema";
 import { useStudyProgress } from "../helpers/useStudyProgress";
+import { ExamCoverage } from "../components/ExamCoverage";
 import styles from "./_index.module.css";
 
 
@@ -145,7 +146,7 @@ export default function HomePage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className={styles.tabs}>
           <TabsList className={styles.tabList}>
-            <TabsTrigger value="today">今日计划</TabsTrigger><TabsTrigger value="words">词汇复习</TabsTrigger><TabsTrigger value="reading">阅读训练</TabsTrigger><TabsTrigger value="listening">听力练习</TabsTrigger><TabsTrigger value="writing">翻译写作</TabsTrigger><TabsTrigger value="review">错题复盘</TabsTrigger>
+            <TabsTrigger value="today">今日计划</TabsTrigger><TabsTrigger value="words">词汇复习</TabsTrigger><TabsTrigger value="reading">阅读训练</TabsTrigger><TabsTrigger value="listening">听力练习</TabsTrigger><TabsTrigger value="writing">翻译写作</TabsTrigger><TabsTrigger value="coverage">考点全景</TabsTrigger><TabsTrigger value="review">错题复盘</TabsTrigger>
           </TabsList>
 
           <TabsContent value="today" className={styles.content}>
@@ -192,6 +193,10 @@ export default function HomePage() {
           <TabsContent value="writing" className={styles.content}>
             <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>TRANSLATION · 先自己表达</p><h2>一句话翻译练习</h2></div><span className={styles.datePill}>约 5 分钟</span></div>
             <article className={styles.practiceCard}><span className={styles.practiceIcon}><PenLine size={22} /></span><h3>请把下面这句话译成英文</h3><p className={styles.chinesePrompt}>良好的学习习惯能帮助学生在繁忙的生活中实现长期目标。</p><Textarea value={translation} disabled={saving} maxLength={4000} aria-label="你的英文译文" onChange={(event) => { draftDirty.current = true; setTranslation(event.target.value); setDraftNotice("有未保存的修改"); }} placeholder="在这里写下你的译文…" className={styles.translationInput} /><div className={styles.wordActions}><Button variant="outline" disabled={saving} onClick={() => void saveDraft()}>保存草稿</Button><Button variant="outline" disabled={!translation.trim()} onClick={() => setShowModelAnswer((value) => !value)}>{showModelAnswer ? "收起参考译文" : "查看参考译文"}</Button><Button variant="secondary" disabled={saving || completed("writing") || !translation.trim() || !showModelAnswer} onClick={() => recordTask("writing", 5)}>{completed("writing") ? "今日翻译已记录" : "已练满 5 分钟，记录并继续"}</Button></div><p role="status">{draftNotice}</p>{showModelAnswer && <div className={styles.transcript}><strong>参考译文</strong><p>Good study habits can help students achieve long-term goals in their busy lives.</p><small>检查点：主语 habits 为复数；help 后接动词原形；“实现目标”可用 achieve goals。</small></div>}</article>
+          </TabsContent>
+
+          <TabsContent value="coverage" className={styles.content}>
+            <ExamCoverage />
           </TabsContent>
 
           <TabsContent value="review" className={styles.content}>

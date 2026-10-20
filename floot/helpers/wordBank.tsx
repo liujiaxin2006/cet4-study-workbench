@@ -1,4 +1,6 @@
-export const wordBank = [
+import { supplementaryWords } from "./wordBankSupplement";
+
+const starterWordBank = [
   {
     "word": "evidence",
     "phonetic": "/ˈevɪdəns/",
@@ -558,4 +560,6 @@ export const wordBank = [
     "phonetic": ""
   }
 ];
+
+export const wordBank = [...starterWordBank, ...supplementaryWords];
 
