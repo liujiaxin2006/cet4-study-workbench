@@ -90,10 +90,10 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
         <span className={styles.badge}>{session.missed.includes(current.word) ? "再次回忆" : state.words[current.word] ? "复习词" : "新词"}</span>
         <h3>{current.word}</h3><div className={styles.pronunciation}><span>{current.phonetic}</span><Button variant="ghost" size="sm" aria-label={"朗读 "+current.word} onClick={() => speak(current.word)}><Volume2 size={18}/>听发音</Button></div>
         {!revealed ? <div className={styles.prompt}><strong>这个词是什么意思？</strong><p>先自己回忆，再点下方查看。完全想不起来也没关系。</p></div> : <div className={styles.answer}>
-          <strong>{current.meaning}</strong><p>常用搭配 · {current.collocation}</p>
-          <p className={styles.example}>{current.example}</p>
-          <div className={styles.actions}><Button variant="ghost" size="sm" onClick={() => speak(current.example)}><Volume2 size={16}/>听例句</Button><Button variant="ghost" size="sm" onClick={() => setShowTranslation(v => !v)}>{showTranslation ? "隐藏中文" : "查看例句中文"}</Button></div>
-          {showTranslation && <p>{current.translation}</p>}<p className={styles.note}>{current.note}</p>
+          <strong>{current.meaning}</strong>
+          {current.collocation && <p>常用搭配 · {current.collocation}</p>}
+          {current.example ? <><p className={styles.example}>{current.example}</p><div className={styles.actions}><Button variant="ghost" size="sm" onClick={() => speak(current.example!)}><Volume2 size={16}/>听例句</Button>{current.translation && <Button variant="ghost" size="sm" onClick={() => setShowTranslation(v => !v)}>{showTranslation ? "隐藏中文" : "查看例句中文"}</Button>}</div>{showTranslation && current.translation && <p>{current.translation}</p>}</> : <p className={styles.note}>先掌握核心义；下一步请在阅读原句中观察它的搭配与语境。</p>}
+          {current.note && <p className={styles.note}>{current.note}</p>}
         </div>}
       </div>
       <div className={styles.grading}>
@@ -104,7 +104,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
       </div>
       <p className={styles.hint}>{revealed ? "看答案前没想起来，就选「没记住」。隔几张再见；本轮连忘 3 次则暂存，避免卡住。" : "快捷键：空格查看释义；1 没记住，2 记住了。"}</p>
     </> : <p role="alert">当前词卡不在词库中，请重新打开页面加载最新词库。</p>)}
-    <details className={styles.details}><summary>复习规则与词库说明</summary><p>记住后按 1 天、3 天及逐步延长的间隔复习；忘记则缩短间隔。本轮中的重现是短时巩固，不代表已经长期掌握。</p><p>当前提供 {wordBank.length} 个精选基础核心词，包含释义、搭配、原创例句与译文。这是起步词库，尚未覆盖完整四级词汇，也不是历年真题频次排名。</p></details>
+    <details className={styles.details}><summary>复习规则与词库说明</summary><p>记住后按 1 天、3 天及逐步延长的间隔复习；忘记则缩短间隔。本轮中的重现是短时巩固，不代表已经长期掌握。</p><p>当前共 {wordBank.length} 个核心词：原有160个教学精选词，加上440个从公开CET-4标签词库中按BNC通用英语语料词频排序筛选的词。BNC词频不是四级历年真题频次；释义/词性仍要结合句子核对。该600词集是优先复习清单，不等于完整四级大纲词表。</p></details>
   </section>;
 }
 

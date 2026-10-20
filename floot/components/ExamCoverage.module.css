@@ -73,6 +73,16 @@
 .reviewCycle strong { margin-right: 6px; }
 .reviewCycle span { padding: 6px 9px; border: 1px solid var(--border); border-radius: var(--radius-full); background: var(--card); }
 .reviewCycle b { color: var(--primary); }
+.paperIndex { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.paperIndex article { padding: 13px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); }
+.paperIndex article > strong { display: block; margin-bottom: 8px; font-size: 13px; }
+.paperIndex article > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.paperIndex a { display: flex; flex-direction: column; gap: 4px; padding: 9px; border-radius: 9px; background: var(--surface); color: var(--primary); font-size: 12px; font-weight: 700; text-decoration: none; }
+.paperIndex a span { color: var(--muted-foreground); font-size: 9px; font-weight: 400; }
+.archiveLinks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+.archiveLinks a { display: flex; flex-direction: column; gap: 5px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--primary); font-size: 12px; text-decoration: none; }
+.archiveLinks a span { color: var(--muted-foreground); font-size: 10px; line-height: 1.6; }
+.sourceLimit { color: var(--muted-foreground); font-size: 11px; line-height: 1.7; }
 @media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
   .drillGrid { grid-template-columns: 1fr; }
@@ -82,7 +92,9 @@
   .cardTitle { font-size: 13px; }
   .badge { font-size: 9px; }
   .library > header { display: grid; gap: 7px; }
-  .skillGrid, .themeGrid, .routineGrid, .phaseGrid, .grammarGrid { grid-template-columns: 1fr; }
+  .skillGrid, .themeGrid, .routineGrid, .phaseGrid, .grammarGrid, .paperIndex { grid-template-columns: 1fr; }
+  .archiveLinks { grid-template-columns: 1fr; }
+  .paperIndex article > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .grammarGrid li:nth-last-child(2) { border-bottom: 1px solid var(--border); }
   .reviewCycle { justify-content: flex-start; }
 }

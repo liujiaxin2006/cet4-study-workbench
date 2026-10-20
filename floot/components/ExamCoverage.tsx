@@ -9,6 +9,15 @@ const examParts = [
   { part: "翻译", task: "汉译英段落 1 题", weight: "15%", time: "30 分钟" },
 ];
 
+const pastPaperSets = [
+  { period: "2023年12月", code: "202312" },
+  { period: "2024年6月", code: "202406" },
+  { period: "2024年12月", code: "202412" },
+  { period: "2025年6月", code: "202506" },
+  { period: "2025年12月", code: "202512" },
+  { period: "2026年6月", code: "202606" },
+];
+
 const points = [
   { icon: Sparkles, title: "词汇与语法底座", badge: "贯穿四项", items: ["词义要放回上下文判断：熟词生义、词性变化、近义词辨析。", "构词法：常见前缀、后缀、词根；名词、动词、形容词、副词之间的转换。", "固定搭配与介词：动词 + 介词、形容词 + 介词、名词 + 介词，以及动词后接 to do / doing。", "句子主干：主谓宾、主系表；主谓一致、时态语态、比较结构、代词指代。", "长难句：定语从句、名词性从句、状语从句、非谓语、并列与插入成分。", "篇章逻辑：因果、转折、让步、举例、递进、对比、结论；识别 however、therefore、rather than 等信号。"] },
   { icon: BookOpenCheck, title: "阅读三种题型", badge: "占总分 35%", items: ["选词填空：先判断空格词性和语法形式，再看搭配与上下文；不要只凭中文意思硬套。", "长篇匹配：先读题干关键词并标注同义替换，再扫段落主题句和专有名词；一段可能对应多题，按题目要求判断。", "仔细阅读：题干定位原文证据，识别同义改写；区分主旨、细节、推断、词义和作者态度题。", "干扰项排除：原文未提、偷换对象或范围、因果倒置、过度绝对化、把例子当结论。", "复盘格式：题干关键词 → 原文证据句 → 正确项改写 → 错项错因。不要只记选项字母。"] },
@@ -23,6 +32,8 @@ const miniDrills = [
   { type: "长篇匹配", prompt: "段落：A community garden began with only six families. After neighbors started sharing tools and teaching children how to grow vegetables, more residents joined. The garden later became a regular place for people to meet.", options: ["匹配信息：社区项目如何加强邻里联系。", "匹配信息：城市交通费用为何上涨。"], answer: "匹配“社区项目如何加强邻里联系”。", explanation: "sharing tools、teaching children、a place to meet 都指向邻里互动。做匹配时找语义同义替换，不要只找相同单词。" },
   { type: "仔细阅读", prompt: "Online courses allow students to study at flexible times. However, some learners find it difficult to stay motivated without regular contact with teachers. Short weekly meetings can help them receive feedback and keep up with their studies.", options: ["A. 灵活的时间安排能解决所有学习困难。", "B. 定期交流和反馈能帮助部分线上学习者坚持。", "C. 线上课程不适合任何学生。", "D. 教师反馈会降低学习积极性。"], answer: "B", explanation: "证据是 Short weekly meetings can help them receive feedback and keep up with their studies。A、C、D 都比原文说得更绝对或与原文相反。" },
   { type: "听力理解", prompt: "先听短句再回答：What helped the team finish the project on time?", script: "The project was delayed at first. The team later divided the work into smaller tasks and reviewed its progress each week. As a result, members found problems early and finished the project on time.", options: ["A. 每周检查进度并及早发现问题。", "B. 临时增加了项目预算。", "C. 取消了所有小组会议。"], answer: "A", explanation: "抓因果信号 As a result；团队每周检查进度，及早发现问题，最后按时完成。" },
+  { type: "听力短篇新闻", prompt: "听新闻，抓事件、原因和后续措施。问题：Why was the town's evening bus service extended?", script: "The town has extended its evening bus service after a survey showed that many hospital workers could not get home after late shifts. The new schedule begins next Monday. Officials will review passenger numbers after three months.", options: ["A. 医院员工晚班后缺少回家交通。", "B. 旅游景点要求增加夜班车辆。", "C. 公交票价下周将会上涨。"], answer: "A", explanation: "新闻导语给出决定及原因；后文补充开始时间和三个月后的评估，不要把后续措施误当成原因。" },
+  { type: "听力长对话", prompt: "听对话，区分原计划、问题与最后决定。问题：What will the students do for their presentation?", script: "Woman: We planned to interview local shop owners, but two of them are unavailable this week. Man: Could we use the survey results instead? Woman: That would work. We can add one short interview with the shop owner near campus. Man: Good idea. I'll prepare the charts, and you can contact the owner.", options: ["A. 完全取消调查并改做实验。", "B. 用调查结果并补充一次采访。", "C. 等所有店主下周都有空再开始。"], answer: "B", explanation: "but 后说明原计划遇到问题；最后方案是调查结果加一次短采访。抓住最终决定，而不是只记最初计划。" },
   { type: "写作审题", prompt: "Writing task: Some students think university students should take part in volunteer work. Do you agree? Give reasons and explain how students can balance volunteering with study.", options: ["动笔前先列：立场；两个理由或一个理由加例子；如何安排学习与志愿服务。"], answer: "参考提纲：同意适度参与；可服务社区并锻炼沟通/协作；用固定时段安排志愿活动，优先完成课程任务。", explanation: "题目有两个明确任务：表明是否同意并说明理由、解释如何平衡。漏答其中一个会偏题。答案是提纲示例，可形成自己的论证。" },
   { type: "段落翻译", prompt: "请先译成英文：近年来，越来越多的城市建设了公共自行车系统。它们为短途出行提供了便利，也有助于减少道路拥堵。", options: ["先拆为三层信息：近年来的趋势；公共自行车的用途；它带来的另一项好处。"], answer: "参考译文：In recent years, more and more cities have built public bicycle systems. They make short-distance travel more convenient and also help reduce traffic congestion.", explanation: "注意现在完成时表达近年来的变化；make + 宾语 + 形容词；help 后接动词原形。公共自行车也可按语境译为 bike-sharing systems。" },
 ];
@@ -79,7 +90,7 @@ export function ExamCoverage() {
     </header>
     <aside className={styles.notice}>
       <strong>先说明当前工作台的真实覆盖度</strong>
-      <p>当前词库为 160 个精选词，约 4,500 词的课程要求词汇范围尚未完整收录；下方现有 6 道原创示范题也不是题库。本站现在补上完整现行题型的考点清单、12 类主题训练地图、每日复盘流程和阶段路线。我们没有逐题取得并核算近 15 年全部考卷，所以不宣称覆盖全部历年考点、不伪造词频或命中率。你应把词库当作已启动的核心词卡，而不是完整词表。</p>
+      <p>词汇区现有600个优先复习词（160个教学精选词 + 440个公开CET-4标签词库中的语料频次候选）；该排序不是历年四级真题考频，也不等于完整考纲词表。下面有8道本站原创题型练习，并附一套可外部打开的18套历年真题自测索引（2023年12月至2026年6月）。本站没有取得并复算近15年全部试卷，因此不宣称覆盖全部历年题目或考点。</p>
     </aside>
     <div className={styles.tableWrap}>
       <h3>官方笔试结构</h3>
@@ -89,6 +100,12 @@ export function ExamCoverage() {
       </div>
       <small>来源：中国教育考试网 CET-4 笔试结构及考核内容；总时长 125 分钟。分数为报道分，单题正确数不直接等于对应报道分。</small>
     </div>
+    <section className={styles.library}>
+      <header><div><span className={styles.eyebrow}>历年真题 · 外部自测入口</span><h3>18套公开真题自测</h3></div><p>按年份与套数打开完整试卷；原题、答案和音频保留在来源页面，本站不复制整卷。</p></header>
+      <div className={styles.paperIndex}>{pastPaperSets.map(set => <article key={set.code}><strong>{set.period}</strong><div>{[1,2,3].map(n => <a key={n} href={`https://eol.nju.edu.cn/cet4/papers/${set.code}-${n}.html`} target="_blank" rel="noreferrer">第{n}套 <span>写作·听力·阅读·翻译</span></a>)}</div></article>)}</div>
+      <div className={styles.archiveLinks}><a href="https://english.ulearning.cn/ulearning_web/portal/courseDetail.do?courseID=7473" target="_blank" rel="noreferrer"><strong>旧年份试卷目录 · Ulearning</strong><span>页面列出2006—2018年多场次试卷，可能需要平台权限。</span></a><a href="https://english-exam.lazynote.cn/cet4/downloads/" target="_blank" rel="noreferrer"><strong>2015—2026年资料目录 · 懒笔记</strong><span>页面自称收录76套及分题型资料；本站未逐份核验。</span></a><a href="https://www.guojiya.cn/exam/cet4/resources" target="_blank" rel="noreferrer"><strong>2016—2026年资料目录 · 过级鸭</strong><span>页面自称收录62套；部分解析或专项资料可能受账号权益限制。</span></a></div>
+      <p className={styles.sourceLimit}>南京大学在线教育平台提供2023年12月至2026年6月18套第三方自测页；Ulearning、懒笔记和过级鸭是补充目录，年份和套数为各页面自述，本站未逐份核验题目准确性、权限或再发布授权。完整原题保留在来源页，真题版权归原考试机构所有。</p>
+    </section>
     <section className={styles.library}>
       <header><div><span className={styles.eyebrow}>考点总账 · 按题型逐项自检</span><h3>这场考试究竟要会什么</h3></div><p>现行笔试的8个训练单元都列在这里。把“看过技巧”变成“做题时能执行的动作”。</p></header>
       <div className={styles.skillGrid}>{skillChecklist.map((unit, index) => <details className={styles.skillCard} key={unit.title} open={index < 2}>
@@ -130,7 +147,7 @@ export function ExamCoverage() {
       </details>)}
     </div>
     <section className={styles.drills}>
-      <div><h3>6道原创示范题</h3><p>覆盖六种主要任务样式，先独立作答，再展开解析。每种目前只有一题，不能当成足量题库，也不是历年原题。</p></div>
+      <div><h3>8道本站原创题型练习</h3><p>覆盖官方结构中的选词填空、长篇匹配、仔细阅读、短篇新闻、长对话、听力篇章、写作和翻译样式。均为原创练习，不是历年原题。</p></div>
       <div className={styles.drillGrid}>{miniDrills.map((drill, index) => <article className={styles.drill} key={drill.type}>
         <span className={styles.drillLabel}>{String(index + 1).padStart(2, "0")} · {drill.type}</span>
         <p>{drill.prompt}</p>
@@ -142,13 +159,18 @@ export function ExamCoverage() {
     <footer className={styles.sources}>
       <strong>参考资料与证据边界</strong>
       <a href="https://cet.neea.edu.cn/html1/report/16123/196-1.htm" target="_blank" rel="noreferrer">中国教育考试网：全国大学英语四级笔试（CET4）</a>
+      <a href="https://eol.nju.edu.cn/cet4/" target="_blank" rel="noreferrer">南京大学在线教育平台：2023年12月—2026年6月四级历年真题自测目录（18套）</a>
+      <a href="https://english.ulearning.cn/ulearning_web/portal/courseDetail.do?courseID=7473" target="_blank" rel="noreferrer">Ulearning：2006—2018年真题条目目录（平台权限可能适用）</a>
+      <a href="https://english-exam.lazynote.cn/cet4/downloads/" target="_blank" rel="noreferrer">懒笔记：2015—2026年真题下载目录（其76套数量为页面自述，本站未逐份核验）</a>
+      <a href="https://www.guojiya.cn/exam/cet4/resources" target="_blank" rel="noreferrer">过级鸭：2016—2026年历年真题目录（其62套数量为页面自述）</a>
+      <a href="https://github.com/grhliu/wordtyper-vocabularies" target="_blank" rel="noreferrer">WordTyper开源词库：CET-4标签词与BNC语料词频交集（MIT；不是四级真题频次）</a>
       <a href="https://cet.neea.edu.cn/xhtml1/report/16123/177-1.htm" target="_blank" rel="noreferrer">中国教育考试网：CET 笔试考核内容</a>
       <a href="https://cet.neea.edu.cn/res/Home/1704/55b02330ac17274664f06d9d3db8249d.pdf" target="_blank" rel="noreferrer">中国教育考试网：《全国大学英语四、六级考试大纲（2016年修订版）》</a>
       <a href="https://www.edu.cn/gao_jiao_788/20060323/t20060323_110131.shtml" target="_blank" rel="noreferrer">《大学英语课程教学要求（试行）》：约4,500词和700词组的推荐范围</a>
       <a href="https://jingxuan.douyin.com/m/video/7684969066745957673" target="_blank" rel="noreferrer">抖音公开系列：四级听力按主题练词块、熟词生义和同义替换（2026年9月）</a>
       <a href="https://www.douyin.com/video/7582204194128743738" target="_blank" rel="noreferrer">抖音公开内容：阅读选项须回到文章证据，不能只凭词面技巧排除</a>
       <a href="https://english-exam.lazynote.cn/cet4/words/stats/syllabus/" target="_blank" rel="noreferrer">第三方历年真题词频检索：页面说明其统计口径与语料；本站未独立复核</a>
-      <p>官方材料用于确认题型和大纲；社交平台内容只作学习方法线索，不等于命题数据。小红书公开索引未返回可独立核验的四级笔记正文，因此本版没有把未经核验的笔记或热度当作来源。第三方词频页声称按历年真题统计，但本站没有取得并复算其全部底层试卷，故只作为外部查阅入口，不导入排名。本站未逐题收录近15年试卷；真题频次排名必须基于有出处、可复核的完整语料统计。真题版权题目不在此复制。</p>
+      <p>官方材料用于确认题型和大纲；社交平台内容只作学习方法线索，不等于命题数据。小红书公开索引未返回可独立核验的四级笔记正文；抖音公开内容提醒考生回原文找证据，但本站不把博主经验当作统计结论。词频候选使用公开MIT词库给出的CET-4词汇标签与BNC通用语料频次排序，不能推导为四级真题考频。第三方真题频次网页未公开足够的底层试卷清单供本站复算，因此不导入其数字。完整真题保留在来源页面，本站不复制题面。</p>
     </footer>
   </section>;
 }
