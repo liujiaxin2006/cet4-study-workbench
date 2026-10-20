@@ -1,6 +1,6 @@
 {
   "source": "Floot project source snapshot",
-  "version": "1792507518348",
+  "version": "1792507820514",
   "exported_on": "2026-10-20",
   "excluded": [
     "component examples",
@@ -44,7 +44,7 @@
     "floot/components/DropdownMenu.module.css": "f9e98765eac016868ab3bf472d7e1acf87b057cda713ee72cf26c41a3c0d755d",
     "floot/components/DropdownMenu.tsx": "63ba7c2ec6ad91d52b426999de011811116505f47450941c0a55c00d40f82813",
     "floot/components/ExamCoverage.module.css": "1b8b1f06ab749beccaab364ef5a359f3811f221be6b284c17be8cecbb474d621",
-    "floot/components/ExamCoverage.tsx": "6874e3fee85d98ed9f1a2e36db3a0381721aa66098e3bf89d0fb862c3de64f9f",
+    "floot/components/ExamCoverage.tsx": "fabe1fd5e92c949bb356f0b0158b4404a27123c476d17ac358bac24c3b41f649",
     "floot/components/FileDropzone.module.css": "4f977361c884ce4ec1665436a4310d8654aa6b76f950690d3581603f475e8241",
     "floot/components/FileDropzone.tsx": "17170e8feac9e2b4822ded44b9e345ad992ed2ba1ec14b6328c4f54bcfd6b3a7",
     "floot/components/Form.module.css": "b51e0331ff33c976dedd196e39826358ed7ae35df13736043c754f656e7fe68e",
