@@ -1,5 +1,6 @@
 import { supplementaryWords } from "./wordBankSupplement";
 import { corpusRankedWords } from "./wordBankCorpus";
+import { officialStarterWords } from "./wordBankOfficial";
 
 const starterWordBank = [
   {
@@ -562,7 +563,7 @@ const starterWordBank = [
   }
 ];
 
-export const wordBank = [...starterWordBank, ...supplementaryWords, ...corpusRankedWords] as Array<{
+export const wordBank = [...starterWordBank, ...supplementaryWords, ...officialStarterWords, ...corpusRankedWords] as Array<{
   word: string; phonetic?: string; meaning: string; collocation?: string;
   example?: string; translation?: string; note?: string; sourceRank?: number;
 }>;

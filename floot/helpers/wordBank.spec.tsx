@@ -1,9 +1,9 @@
 import { wordBank } from "./wordBank";
 
 describe("CET-4 priority vocabulary", () => {
-  it("contains exactly 600 unique headwords with usable meanings", () => {
-    expect(wordBank.length).toBe(600);
-    expect(new Set(wordBank.map((entry) => entry.word.toLowerCase())).size).toBe(600);
+  it("contains exactly 640 unique headwords with usable meanings", () => {
+    expect(wordBank.length).toBe(640);
+    expect(new Set(wordBank.map((entry) => entry.word.toLowerCase())).size).toBe(640);
     expect(wordBank.every((entry) => entry.word.trim() && entry.meaning.trim())).toBe(true);
   });
 

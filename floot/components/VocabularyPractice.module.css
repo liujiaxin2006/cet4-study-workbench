@@ -29,5 +29,5 @@
 .details { margin-top:22px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--muted-foreground); line-height:1.7; }
 .details summary { cursor:pointer; padding:8px 0; }
 .finishIcon { color:var(--primary); }
-@media(max-width:520px) { .heading { align-items:flex-start; } .card { min-height:260px; } .prompt,.answer { padding:16px; } .grading { margin-inline:-4px; padding-inline:4px; } .options button { flex:1; } }
+@media(max-width:520px) { .heading { align-items:flex-start; } .card { min-height:260px; } .prompt,.answer { padding:16px; } .grading { bottom: calc(68px + env(safe-area-inset-bottom)); margin-inline:-4px; padding-inline:4px; } .options button { flex:1; } }
 

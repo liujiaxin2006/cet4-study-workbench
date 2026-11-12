@@ -104,7 +104,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
       </div>
       <p className={styles.hint}>{revealed ? "看答案前没想起来，就选「没记住」。隔几张再见；本轮连忘 3 次则暂存，避免卡住。" : "快捷键：空格查看释义；1 没记住，2 记住了。"}</p>
     </> : <p role="alert">当前词卡不在词库中，请重新打开页面加载最新词库。</p>)}
-    <details className={styles.details}><summary>复习规则与词库说明</summary><p>记住后按 1 天、3 天及逐步延长的间隔复习；忘记则缩短间隔。本轮中的重现是短时巩固，不代表已经长期掌握。</p><p>当前共 {wordBank.length} 个核心词：原有160个教学精选词，加上440个从公开CET-4标签词库中按BNC通用英语语料词频排序筛选的词。BNC词频不是四级历年真题频次；释义/词性仍要结合句子核对。该600词集是优先复习清单，不等于完整四级大纲词表。</p></details>
+    <details className={styles.details}><summary>复习规则与词库说明</summary><p>记住后按 1 天、3 天及逐步延长的间隔复习；忘记则缩短间隔。本轮中的重现是短时巩固，不代表已经长期掌握。</p><p>当前共 {wordBank.length} 个优先复习词：160 个教学精选词、40 个按官方大纲四级范围核对并重新编写学习卡的词，以及 440 个公开 CET-4 标签词库候选词。后者按 BNC 通用语料词频排序，不是四级真题频次；整套词卡也不等于完整四级大纲词表。</p></details>
   </section>;
 }
 

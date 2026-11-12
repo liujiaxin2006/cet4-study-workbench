@@ -8,6 +8,7 @@ export const studyStateSchema = z.object({
     minutes: z.number().int().min(0).max(60),
     completed: z.array(z.string().max(40)).max(10),
     readingChoice: z.number().int().min(0).max(3).optional(),
+    readingAnswers: z.array(z.number().int().min(0).max(3)).length(5).optional(),
     translation: z.string().max(4000).optional(),
     correct: z.number().int().min(0).max(1000),
     answered: z.number().int().min(0).max(1000),
