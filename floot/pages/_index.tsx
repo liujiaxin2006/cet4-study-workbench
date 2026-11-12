@@ -166,9 +166,9 @@ export default function HomePage() {
 
   return (
     <main className={styles.app}>
-      <Helmet><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /><meta name="theme-color" content="#f8f7ff" /><link rel="manifest" href="/manifest.json" /></Helmet>
+      <Helmet><title>CET-4 Copilot</title><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /><meta name="theme-color" content="#f8f7ff" /><link rel="manifest" href="/manifest.json" /></Helmet>
       <header className={styles.topbar}>
-        <a className={styles.brand} href="/" aria-label="四级上岸首页"><span className={styles.brandMark}><Leaf size={18} /></span><span>四级上岸</span></a>
+        <a className={styles.brand} href="/" aria-label="CET-4 Copilot 首页"><span className={styles.brandMark}><Leaf size={18} /></span><span>CET-4 Copilot</span></a>
         <div className={styles.topActions}>{authState.type === "authenticated" && authState.user.role === "admin" && <Link className={styles.adminLink} to="/admin"><LayoutDashboard size={15} /> 数据面板</Link>}<span className={styles.userName}>{greeting}</span><Button variant="ghost" size="sm" onClick={() => void logout()}><LogOut size={15} /> 退出</Button></div>
       </header>
 

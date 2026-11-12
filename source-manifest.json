@@ -1,6 +1,6 @@
 {
   "source": "Floot project source snapshot",
-  "version": "1794473855309",
+  "version": "1794474654059",
   "exported_on": "2026-11-12",
   "excluded": [
     "component examples",
@@ -144,11 +144,11 @@
     "floot/helpers/wordBankSupplement.tsx": "3b071edeea246095a62b129d08983f0fb5068cd46898ef77dd014c847ca5f124",
     "floot/pages/_index.module.css": "269b990dc02dd5b3d672473dd5aeb6385c575e0fb2b8243a68d40fd2dc304979",
     "floot/pages/_index.pageLayout.tsx": "2576801d4564f2890fe8646e557b3c5214128f7a259ca33ad02368121934432a",
-    "floot/pages/_index.tsx": "cef44a1cbfc459f11eda8b563a592d907b47bb2e4fa60987b27e0aa09b5623ea",
+    "floot/pages/_index.tsx": "d20b03fee5d0a141ca6a5b5e787ba088efd3348eb940bbf064b77b4872838214",
     "floot/pages/login.module.css": "1347e6e3ba62b19db0ef76b815c18557f06cc640efdf62108f22018af5dc240d",
     "floot/pages/login.pageLayout.tsx": "f28c3a3a580933cf524197edd472ee17ccb407195fc1f01897a72a7c62d575df",
-    "floot/pages/login.tsx": "951ed0dd73818d1902460f1afc3f9980cd475e8f47983f06d63954d5edcb71a1",
+    "floot/pages/login.tsx": "2163725f15c33c795b1b315c186b769d106975b553b2cd9696d8a4431642426a",
     "floot/static/__dev/dependencies.json": "3ae2cdcfd12f612f5baff9abec1e5d330b4605ed116a5f5859f1f1c4a41e4185",
-    "floot/static/manifest.json": "07366ce8b9f75c6a654fe936250685b3031374c5b329aa33d83c5b79353f3be9"
+    "floot/static/manifest.json": "30f87af62aa2a01ce48af02c4b42b6cda3efe38bebf650b658ad971d0a765415"
   }
 }

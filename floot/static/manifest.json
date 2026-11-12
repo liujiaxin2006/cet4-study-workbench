@@ -1,6 +1,6 @@
 {
-  "name": "四级上岸英语学习工作台",
-  "short_name": "四级上岸",
+  "name": "CET-4 Copilot",
+  "short_name": "CET-4 Copilot",
   "description": "每日词汇、阅读、听力与翻译训练的四级备考工作台",
   "start_url": "/",
   "scope": "/",
