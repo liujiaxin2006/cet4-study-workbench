@@ -25,6 +25,28 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type UserRole = "admin" | "user";
 
+export interface CetCorpusImports {
+  createdAt: Generated<Timestamp>;
+  id: string;
+  inventory: Json;
+}
+
+export interface CetReviewAttempts {
+  answers: Generated<Json>;
+  paperId: string;
+  revision: Generated<number>;
+  submittedGroups: Generated<Json>;
+  texts: Generated<Json>;
+  updatedAt: Generated<Timestamp>;
+  userId: number;
+}
+
+export interface CetReviewPapers {
+  id: string;
+  payload: Json;
+  updatedAt: Generated<Timestamp>;
+}
+
 export interface LoginAttempts {
   attemptedAt: Generated<Timestamp | null>;
   email: string;
@@ -65,6 +87,9 @@ export interface Users {
 }
 
 export interface DB {
+  cetCorpusImports: CetCorpusImports;
+  cetReviewAttempts: CetReviewAttempts;
+  cetReviewPapers: CetReviewPapers;
   loginAttempts: LoginAttempts;
   sessions: Sessions;
   studyProgress: StudyProgress;

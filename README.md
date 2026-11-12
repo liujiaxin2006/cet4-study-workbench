@@ -14,11 +14,26 @@
 - 阅读答案依据、听力原文隐藏、每日学习任务。
 - 手机端四项毛玻璃底部导航、横滑切换和「更多」入口；电脑端保留完整导航。
 
+## 真题资料审核（2026-11-13）
+已新增管理员专用 `/library-review` 审核区，并从管理面板提供入口。普通用户和未登录请求不能访问审核接口或原始文件。
+
+这批用户提供的资料共有176份文件，覆盖2017.06—2026.06的22个场次目录；清单位于 `data/cet4-corpus/inventory.json`。清单记录文件SHA-256、页数、提取状态和重复线索，文件数量不代表已核验的试卷套数。76份PDF有低文字量页面，需要OCR或视觉检查；4份旧版Word需要转换。
+
+当前仅2023.06第1套接入私有审核样本：55道客观题、1项写作、1项翻译；阅读有原文证据、定位、选项分析和复盘建议。答案提交后由后端返回，草稿按账号保存，版本冲突拒绝覆盖。音频尚待听审，不作为正式模考成绩。三份样本原始文件位于Floot私有存储，仓库不包含原卷、音频、解析正文或账号资料。其余年份尚未批量转成可作答题库，1000词统计尚未完成。
+
+`database/cet-review.sql` 提供新增表结构。盘点脚本仅读取源文件：
+
+```sh
+python scripts/cet4_inventory.py --root YOUR_CORPUS_DIRECTORY --out data/cet4-corpus/inventory.json --texts YOUR_TEMP_TEXT_DIRECTORY
+```
+
+样本校验脚本需要私有的规范化JSON与原始文件，不在仓库内附带这些内容。
+
 ## 技术栈
 前端使用 React 19、TypeScript、CSS Modules、React Router、Radix UI 与 TanStack Query；服务端由 Floot 提供接口运行环境，持久化使用 PostgreSQL + Kysely，认证使用 bcryptjs 和 jose。
 
 ## 源码形态与运行边界
-本仓库是 **Floot 项目源码快照**，最近一次同步日期为 2026-11-12。线上站仍由 Floot 构建与部署。
+本仓库是 **Floot 项目源码快照**，最近一次同步日期为 2026-11-13。线上站仍由 Floot 构建与部署。
 `floot/` 保持平台中的原始文件路径，排除了组件示例和编辑器历史。
 这不是开箱即用的 Vite / Next.js 工程：Floot 提供路由、构建、API 请求适配和部署入口。
 直接把仓库部署到 GitHub Pages **不能**运行登录和进度同步；需要后端与 PostgreSQL。
