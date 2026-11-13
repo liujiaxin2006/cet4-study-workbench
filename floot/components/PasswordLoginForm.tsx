@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import {safeReturnPath} from "../helpers/safeReturnPath";
 import {
   Form,
   FormControl,
@@ -32,6 +33,7 @@ export const PasswordLoginForm: React.FC<PasswordLoginFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const { onLogin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const form = useForm({
     defaultValues: {
@@ -48,7 +50,7 @@ export const PasswordLoginForm: React.FC<PasswordLoginFormProps> = ({
     try {
       const result = await postLogin(data);
       onLogin(result.user);
-      setTimeout(() => navigate("/"), 200);
+      navigate(safeReturnPath(new URLSearchParams(location.search).get("next")), {replace:true});
     } catch (err) {
       console.error("Login error:", err);
       setError(

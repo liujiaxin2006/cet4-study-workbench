@@ -30,6 +30,7 @@ type AuthState =
       // Make sure to redirect to login or show auth error UI
       type: "unauthenticated";
       errorMessage?: string;
+      sessionUnavailable?: boolean;
     };
 
 type AuthContextType = {
@@ -55,13 +56,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     queryFn: async () => {
       const result = await getSession();
       if ("error" in result) {
-        throw new Error(result.error);
+        throw Object.assign(new Error(result.error), {status:401});
       }
       return result.user;
     },
     retry: 1,
     enabled: true,
-    staleTime: Infinity,
+    staleTime: 60000,
+    refetchOnWindowFocus: "always",
   });
 
   const authState: AuthState =
@@ -72,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             type: "unauthenticated",
             errorMessage:
               error instanceof Error ? error.message : "Session check failed",
+            sessionUnavailable: (error as {status?:number})?.status !== 401,
           }
         : data
           ? { type: "authenticated", user: data }

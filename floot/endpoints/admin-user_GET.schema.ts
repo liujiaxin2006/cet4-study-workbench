@@ -1,0 +1,3 @@
+import superjson from 'superjson';
+export type AdminUserDetail={id:number;displayName:string;email:string;role:string;modules:{module:string;name:string;visits:number;seconds:number}[];days:{date:string;reportedMinutes:number;completed:string[]}[];recentVisits:{module:string;startedAt:string;lastSeenAt:string;seconds:number}[];wordCount:number;unresolvedMistakes:number};
+export async function getAdminUser(id:number):Promise<AdminUserDetail>{const r=await fetch('/_api/admin-user?id='+id,{cache:'no-store'});const d=superjson.parse<any>(await r.text());if(!r.ok)throw new Error(d.error||'读取用户数据失败。');return d;}

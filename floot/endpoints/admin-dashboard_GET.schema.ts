@@ -1,0 +1,5 @@
+import superjson from 'superjson';
+export type ModuleUsage={module:string;name:string;visits:number;users:number;activeSeconds:number;recordedCompletions:number};
+export type AdminUserRow={id:number;displayName:string;email:string;role:string;createdAt:string;lastActiveAt:string|null;visits:number;activeSeconds:number;reportedMinutes:number;topModule:string|null};
+export type AdminDashboard={days:7|30;startDate:string;endDate:string;trackingStartedAt:string;generatedAt:string;summary:{registeredUsers:number;newUsers:number;activeUsers:number;visits:number;activeSeconds:number;recordedMinutes:number;recordedLearners:number};modules:ModuleUsage[];trend:{date:string;newUsers:number;activeUsers:number;seconds:number;reportedMinutes:number}[];users:AdminUserRow[];userTotal:number;page:number;pageSize:number;hasTelemetry:boolean};
+export async function getAdminDashboard(days:7|30,q:string,page:number):Promise<AdminDashboard>{const r=await fetch('/_api/admin-dashboard?'+new URLSearchParams({days:String(days),q,page:String(page)}),{cache:'no-store'});const data=superjson.parse<any>(await r.text());if(!r.ok)throw new Error(data.error||'后台数据暂时读取失败。');return data;}

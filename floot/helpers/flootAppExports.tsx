@@ -1,3 +1,5 @@
+import {adminDashboardData} from './adminDashboardData';
+import type {AdminDashboard} from '../endpoints/admin-dashboard_GET.schema';
 import type { AppCallContext } from '@floot/apps';
 import { upload,getInfo } from '@floot/storage';
 import { z } from 'zod';
@@ -22,4 +24,10 @@ export async function prepareCetReviewUploads(input:SourceUploadInput,ctx:AppCal
   files.push({id,filename,exists:false,presignedUrl:result.presignedUrl,headers:result.headers,bytes:source.bytes});
  }
  return {files};
+}
+
+/** Read operating statistics for the verified project owner, for diagnosis without changing app accounts. */
+export async function readOwnerDashboard(input:{days:7|30;q?:string;page?:number},ctx:AppCallContext):Promise<AdminDashboard>{
+ if(!ctx.caller.sameOwner)throw new Error('Only the project owner can inspect operating statistics.');
+ return adminDashboardData({days:input.days,q:input.q||'',page:input.page||1});
 }

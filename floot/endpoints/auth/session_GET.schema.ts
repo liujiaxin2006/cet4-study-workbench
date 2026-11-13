@@ -25,6 +25,7 @@ export const getSession = async (
       ...(init?.headers ?? {}),
     },
   });
+  if (!result.ok && result.status !== 401) throw Object.assign(new Error("登录状态暂时读取失败，请重试。"), {status:result.status});
   return superjson.parse<OutputType>(await result.text());
 };
 

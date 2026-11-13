@@ -86,7 +86,17 @@ export interface Users {
   updatedAt: Generated<Timestamp | null>;
 }
 
+
+export interface StudyUsageClocks { creditedAt: Generated<Timestamp>; userId: number; }
+export interface StudyUsageMeta { id: string; startedAt: Generated<Timestamp>; }
+export interface StudyUsageSessions { activeSeconds: Generated<number>; id: string; lastSeenAt: Generated<Timestamp>; module: string; reportedSeconds: Generated<number>; sequence: Generated<number>; startedAt: Generated<Timestamp>; userId: number; }
+export interface StudyUsageTicks { activeSeconds: number; module: string; occurredAt: Generated<Timestamp>; sequence: number; sessionId: string; userId: number; }
+
 export interface DB {
+  studyUsageClocks: StudyUsageClocks;
+  studyUsageMeta: StudyUsageMeta;
+  studyUsageSessions: StudyUsageSessions;
+  studyUsageTicks: StudyUsageTicks;
   cetCorpusImports: CetCorpusImports;
   cetReviewAttempts: CetReviewAttempts;
   cetReviewPapers: CetReviewPapers;

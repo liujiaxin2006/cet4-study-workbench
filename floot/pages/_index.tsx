@@ -14,6 +14,8 @@ import { StudyState } from "../endpoints/study-progress_GET.schema";
 import { useStudyProgress } from "../helpers/useStudyProgress";
 import { ExamCoverage } from "../components/ExamCoverage";
 import styles from "./_index.module.css";
+import {originalTraining} from "../helpers/originalTraining";
+import {useUsageTracking} from "../helpers/useUsageTracking";
 
 
 
@@ -24,38 +26,7 @@ const plan = [
   { id: "writing", title: "翻译 / 写作", detail: "写 2 句并检查主谓", time: 5, icon: PenLine, tab: "writing" },
 ];
 
-const readingQuestions = [
-  {
-    prompt: "What is the main idea of the passage?",
-    choices: ["Large changes are the only way to improve.", "Small daily habits can support lasting learning.", "Students should study several hours every weekend.", "Progress cannot be measured."],
-    answer: 1,
-    explanation: "全文强调小而持续的行动更容易坚持，并能帮助学习者调整计划。",
-  },
-  {
-    prompt: "According to the passage, what may a student gain by reading for ten minutes every day?",
-    choices: ["A routine that is easier to keep.", "A guarantee of a high score.", "A reason to stop reviewing.", "More free time every day."],
-    answer: 0,
-    explanation: "第一段举例说明，每天读十分钟可能比每周只学一次几小时更容易形成稳定习惯。",
-  },
-  {
-    prompt: "Why should learners record what they have done?",
-    choices: ["To compare their scores with other students.", "To avoid changing their study plans.", "To see which methods help and where they need support.", "To make every study session longer."],
-    answer: 2,
-    explanation: "第二段指出，记录进度能帮助学习者发现有效方法和需要支持的地方。",
-  },
-  {
-    prompt: "The word “maintain” in Paragraph 1 is closest in meaning to ______.",
-    choices: ["continue", "explain", "measure", "replace"],
-    answer: 0,
-    explanation: "“easier to maintain”意为“更容易维持/坚持”，最接近 continue。",
-  },
-  {
-    prompt: "What did Maya’s teacher advise her to do when her schedule changed?",
-    choices: ["Give up their plans immediately.", "Adjust their plans instead of giving up.", "Study only when they feel confident.", "Ignore the methods they have tried."],
-    answer: 1,
-    explanation: "第三段指出，Maya 的老师建议她在日程变化时调整计划，而不是放弃。",
-  },
-];
+const readingQuestions = originalTraining.readingQuestions;
 
 function shanghaiDateKey() {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
@@ -71,6 +42,7 @@ export default function HomePage() {
   const { authState, logout } = useAuth();
   const { state, save, saveAsync, isLoading, isError, refetch, saving, saveError } = useStudyProgress();
   const [activeTab, setActiveTab] = useState("today");
+  useUsageTracking(activeTab,!isLoading&&!isError);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const mobileTabs = ["today", "words", "reading", "more"] as const;
   const moreActive = ["more", "listening", "writing", "coverage", "review"].includes(activeTab);
@@ -149,7 +121,7 @@ export default function HomePage() {
     if (!("speechSynthesis" in window)) { setAudioError("当前浏览器不支持朗读，请使用系统浏览器。"); return; }
     setAudioError("");
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance("The manager postponed the meeting because several important documents were missing.");
+    const utterance = new SpeechSynthesisUtterance(originalTraining.listening.sentence);
     utterance.lang = "en-US";
     utterance.rate = 0.84;
     utterance.onend = () => setPlayed(true);

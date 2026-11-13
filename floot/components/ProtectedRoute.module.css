@@ -1,3 +1,2 @@
-.accessDeniedIcon {
-  color: var(--warning);
-}
+.accessDeniedIcon{color:var(--error)}
+.gate{min-height:100dvh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:28px;background:var(--background);color:var(--foreground);text-align:center;font-family:var(--font-family-base)}.gate h1{font-size:23px;margin:0}.gate p{max-width:480px;line-height:1.8;font-size:14px;color:var(--muted-foreground);margin:0;overflow-wrap:anywhere}.gate a{font-size:13px;color:var(--primary)}
