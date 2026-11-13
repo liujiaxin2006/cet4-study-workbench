@@ -24,7 +24,7 @@ export function useStudyProgress() {
     queryKey, queryFn: getStudyProgress, enabled: userId !== null,
     retry: 1,
     refetchOnWindowFocus: !mutation.isPending,
-    refetchInterval: mutation.isPending ? false : 30000,
+    staleTime: 30000,
   });
   const saveAsync = async (state: StudyState) => {
     if (lock.current) throw new Error("上一条记录正在保存，请稍候。");

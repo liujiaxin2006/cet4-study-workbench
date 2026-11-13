@@ -31,6 +31,26 @@ export interface CetCorpusImports {
   inventory: Json;
 }
 
+export interface CetPracticeAttempts {
+  groupId: string;
+  paperId: string;
+  revision: Generated<number>;
+  state: Generated<Json>;
+  updatedAt: Generated<Timestamp>;
+  userId: number;
+}
+
+export interface CetPracticeReviews {
+  dueAt: Generated<Timestamp>;
+  groupId: string;
+  lastReviewedDate: string | null;
+  paperId: string;
+  reason: Generated<string>;
+  stage: Generated<number>;
+  userId: number;
+  wrongNumbers: Generated<Json>;
+}
+
 export interface CetReviewAttempts {
   answers: Generated<Json>;
   paperId: string;
@@ -69,6 +89,36 @@ export interface StudyProgress {
   userId: number;
 }
 
+export interface StudyUsageClocks {
+  creditedAt: Generated<Timestamp>;
+  userId: number;
+}
+
+export interface StudyUsageMeta {
+  id: string;
+  startedAt: Generated<Timestamp>;
+}
+
+export interface StudyUsageSessions {
+  activeSeconds: Generated<number>;
+  id: string;
+  lastSeenAt: Generated<Timestamp>;
+  module: string;
+  reportedSeconds: Generated<number>;
+  sequence: Generated<number>;
+  startedAt: Generated<Timestamp>;
+  userId: number;
+}
+
+export interface StudyUsageTicks {
+  activeSeconds: number;
+  module: string;
+  occurredAt: Generated<Timestamp>;
+  sequence: number;
+  sessionId: string;
+  userId: number;
+}
+
 export interface UserPasswords {
   createdAt: Generated<Timestamp | null>;
   id: Generated<number>;
@@ -86,23 +136,19 @@ export interface Users {
   updatedAt: Generated<Timestamp | null>;
 }
 
-
-export interface StudyUsageClocks { creditedAt: Generated<Timestamp>; userId: number; }
-export interface StudyUsageMeta { id: string; startedAt: Generated<Timestamp>; }
-export interface StudyUsageSessions { activeSeconds: Generated<number>; id: string; lastSeenAt: Generated<Timestamp>; module: string; reportedSeconds: Generated<number>; sequence: Generated<number>; startedAt: Generated<Timestamp>; userId: number; }
-export interface StudyUsageTicks { activeSeconds: number; module: string; occurredAt: Generated<Timestamp>; sequence: number; sessionId: string; userId: number; }
-
 export interface DB {
-  studyUsageClocks: StudyUsageClocks;
-  studyUsageMeta: StudyUsageMeta;
-  studyUsageSessions: StudyUsageSessions;
-  studyUsageTicks: StudyUsageTicks;
   cetCorpusImports: CetCorpusImports;
+  cetPracticeAttempts: CetPracticeAttempts;
+  cetPracticeReviews: CetPracticeReviews;
   cetReviewAttempts: CetReviewAttempts;
   cetReviewPapers: CetReviewPapers;
   loginAttempts: LoginAttempts;
   sessions: Sessions;
   studyProgress: StudyProgress;
+  studyUsageClocks: StudyUsageClocks;
+  studyUsageMeta: StudyUsageMeta;
+  studyUsageSessions: StudyUsageSessions;
+  studyUsageTicks: StudyUsageTicks;
   userPasswords: UserPasswords;
   users: Users;
 }
