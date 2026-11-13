@@ -1,0 +1,2 @@
+import {useQuery} from '@tanstack/react-query';import {useAuth} from './useAuth';import {getPracticeCatalog} from '../endpoints/practice-catalog_GET.schema';
+export function usePracticeCatalog(){const {authState}=useAuth();const userId=authState.type==='authenticated'?authState.user.id:null;return useQuery({queryKey:['practice-catalog',userId],queryFn:getPracticeCatalog,enabled:userId!==null,staleTime:30000,refetchOnWindowFocus:true,retry:1});}

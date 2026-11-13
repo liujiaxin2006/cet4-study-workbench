@@ -31,3 +31,5 @@ export async function readOwnerDashboard(input:{days:7|30;q?:string;page?:number
  if(!ctx.caller.sameOwner)throw new Error('Only the project owner can inspect operating statistics.');
  return adminDashboardData({days:input.days,q:input.q||'',page:input.page||1});
 }
+
+export {stageCorpusBatch,prepareCorpusUploads} from './corpusStaging';

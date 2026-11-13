@@ -1,6 +1,8 @@
+import {getWordContext,type WordContext} from "../endpoints/word-context_GET.schema";
 import { useEffect, useRef, useState } from "react";
 import { Check, RotateCcw, Volume2, ArrowRight, Pause, Play } from "lucide-react";
 import { Button } from "./Button";
+import {paperFrequencyCoverage} from "../helpers/wordBankFrequencies";
 import { wordBank } from "../helpers/wordBank";
 import { vocabularyPractice } from "../helpers/vocabularyPractice";
 import type { StudyState } from "../endpoints/study-progress_GET.schema";
@@ -11,23 +13,27 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
   const [revealed, setRevealed] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const [limit, setLimit] = useState(10);
+  const [bankMode,setBankMode]=useState<"frequency"|"all">("frequency");
+  const cards=bankMode==="frequency"?wordBank.filter(w=>w.cetFrequency!==undefined):wordBank;
   const [paused, setPaused] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [contexts,setContexts]=useState<WordContext|null>(null);const [contextBusy,setContextBusy]=useState(false);
   const [busy, setBusy] = useState(false);
   const gate = useRef(false);
   const panel = useRef<HTMLElement>(null);
   const session = state.vocabularySession?.date === today ? state.vocabularySession : undefined;
   const current = wordBank.find(w => w.word === session?.queue[0]);
-  const preview = vocabularyPractice.start(state, wordBank, today, limit);
-  const due = wordBank.filter(w => state.words[w.word] && Date.parse(state.words[w.word].dueAt) <= Date.now()).length;
-  const fresh = wordBank.filter(w => !state.words[w.word]).length;
-  const weak = wordBank.filter(w => state.mistakes.some(m => m.area === "vocabulary" && m.prompt === w.word && !m.resolved));
+  const currentWordRef=useRef("");currentWordRef.current=current?.word||"";
+  const preview = vocabularyPractice.start(state, cards, today, limit);
+  const due = cards.filter(w => state.words[w.word] && Date.parse(state.words[w.word].dueAt) <= Date.now()).length;
+  const fresh = cards.filter(w => !state.words[w.word]).length;
+  const weak = cards.filter(w => state.mistakes.some(m => m.area === "vocabulary" && m.prompt === w.word && !m.resolved));
   const disabled = saving || busy;
   const finished = !!session && session.queue.length === 0;
   const sameCardAttempt = current ? session?.attempts[current.word] : undefined;
 
-  useEffect(() => { setRevealed(false); setShowTranslation(false); }, [current?.word, sameCardAttempt, session?.startedAt]);
+  useEffect(() => { setRevealed(false); setShowTranslation(false);setContexts(null); }, [current?.word, sameCardAttempt, session?.startedAt]);
   useEffect(() => () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); }, []);
   async function persist(next: StudyState, message: string) {
     if (gate.current || saving) return false;
@@ -37,7 +43,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
     finally { gate.current = false; setBusy(false); }
   }
   async function start(mode: "normal" | "review" | "weak" = "normal") {
-    let next = vocabularyPractice.start(state, wordBank, today, limit, Date.now(), mode === "review");
+    let next = vocabularyPractice.start(state, cards, today, limit, Date.now(), mode === "review");
     if (mode === "weak") { const queue = weak.slice(0, limit).map(w => w.word); next = { ...next, queue, total: queue.length }; }
     if (!next.queue.length) { setNotice("现在没有需要开始的词卡，可以继续阅读训练。"); return; }
     if (await persist({ ...state, vocabularySession: next }, "新一轮已保存。先回忆，再查看释义。")) {
@@ -75,6 +81,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
     <p className={styles.notice} role="status" aria-live="polite">{disabled ? "正在保存到账号…" : notice || "每次选择后保存到云端，换设备可接着这一轮复习。"}</p>
     {(!session || finished) && <div className={styles.setup}>
       {finished ? <><Check className={styles.finishIcon} size={32} /><h3>这一轮完成了</h3><p>本轮 {session.total} 个词，{session.total - session.deferred.length} 个已回忆起来；{session.missed.length} 个曾经忘记。</p>{session.deferred.length > 0 && <p>仍需加强：{session.deferred.join("、")}。已安排 10 分钟后复习，也可从易忘词主动再练。</p>}<Button size="lg" onClick={onNext}>接着练阅读 <ArrowRight size={18} /></Button></> : <><h3>从一小轮开始</h3><p>到期词优先，用新词补足这一轮。先在脑中说出含义，看释义后如实选择，不用急着把所有词刷完。</p></>}
+      <div className={styles.options} aria-label="词库范围"><Button variant={bankMode==="frequency"?"primary":"outline"} onClick={()=>setBankMode("frequency")}>资料语料候选1000词</Button><Button variant={bankMode==="all"?"primary":"outline"} onClick={()=>setBankMode("all")}>全部词库（保留旧进度）</Button></div>
       <div className={styles.options} aria-label="每轮词数">{[10,20].map(n => <Button key={n} variant={limit === n ? "primary" : "outline"} aria-pressed={limit === n} disabled={disabled} onClick={() => setLimit(n)}>每轮 {n} 词</Button>)}</div>
       <div className={styles.actions}>
         <Button size="lg" disabled={disabled || preview.total === 0} onClick={() => void start()}>开始{finished ? "下一轮" : "学习"} · {preview.total} 词</Button>
@@ -94,6 +101,8 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
           {current.collocation && <p>常用搭配 · {current.collocation}</p>}
           {current.example ? <><p className={styles.example}>{current.example}</p><div className={styles.actions}><Button variant="ghost" size="sm" onClick={() => speak(current.example!)}><Volume2 size={16}/>听例句</Button>{current.translation && <Button variant="ghost" size="sm" onClick={() => setShowTranslation(v => !v)}>{showTranslation ? "隐藏中文" : "查看例句中文"}</Button>}</div>{showTranslation && current.translation && <p>{current.translation}</p>}</> : <p className={styles.note}>先掌握核心义；下一步请在阅读原句中观察它的搭配与语境。</p>}
           {current.note && <p className={styles.note}>{current.note}</p>}
+          <Button variant="outline" size="sm" disabled={contextBusy} onClick={async()=>{setContextBusy(true);try{const requested=current.word;const result=await getWordContext(requested);if(currentWordRef.current===requested)setContexts(result);}catch(e){setError(e instanceof Error?e.message:"语境读取失败");}finally{setContextBusy(false);}}}>{contextBusy?"读取中…":"查看已发布真题语境"}</Button>
+          {contexts&&<div>{contexts.contexts.length?contexts.contexts.map((c,i)=><p className={styles.example} key={i}>{c.text}<small className={styles.note}>{c.paper} · {c.group}</small></p>):<p className={styles.note}>已发布题组中暂未找到匹配语境；待相关材料校对发布后补充。</p>}</div>}
         </div>}
       </div>
       <div className={styles.grading}>
@@ -104,7 +113,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
       </div>
       <p className={styles.hint}>{revealed ? "看答案前没想起来，就选「没记住」。隔几张再见；本轮连忘 3 次则暂存，避免卡住。" : "快捷键：空格查看释义；1 没记住，2 记住了。"}</p>
     </> : <p role="alert">当前词卡不在词库中，请重新打开页面加载最新词库。</p>)}
-    <details className={styles.details}><summary>复习规则与词库说明</summary><p>记住后按 1 天、3 天及逐步延长的间隔复习；忘记则缩短间隔。本轮中的重现是短时巩固，不代表已经长期掌握。</p><p>当前共 {wordBank.length} 个优先复习词：160 个教学精选词、40 个按官方大纲四级范围核对并重新编写学习卡的词，以及 440 个公开 CET-4 标签词库候选词。后者按 BNC 通用语料词频排序，不是四级真题频次；整套词卡也不等于完整四级大纲词表。</p></details>
+    <details className={styles.details}><summary>复习规则与词库说明</summary><p>同日重现只用于短时巩固；跨天到期复习才推进长期间隔。遗忘词在至少两次跨天成功回忆后才移出待加强记录。</p><p>当前1000个候选词来自已提取的{paperFrequencyCoverage.parsedPapers}份套卷、{paperFrequencyCoverage.parsedExams}个场次、{paperFrequencyCoverage.uniqueMaterials}篇去重阅读材料。去除功能词，做保守词形归并，再按场次覆盖、材料覆盖和出现次数排序；释义来自MIT授权词库。</p><p>扫描识别与全文校对尚未全部完成，因此这是可更新的语料候选表，不宣称完整十年最终考频。原有教学词保留，共{wordBank.length}个不重复词条。</p></details>
   </section>;
 }
 

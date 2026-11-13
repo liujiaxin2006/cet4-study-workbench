@@ -257,3 +257,5 @@
   .content { animation: none; }
   .dockIndicator, .moreCard { transition: none; }
 }
+
+.examBadge{border:1px solid #e1d7f2;border-radius:99px;background:#f2ecff;color:#76608e;padding:8px 12px;font:inherit;font-size:11px;white-space:nowrap;cursor:pointer}.examBadge b{font-size:15px;color:#6d4d9b;margin:0 3px}@media(max-width:740px){.examBadge{font-size:9px;padding:6px 8px}.examBadge b{font-size:13px}.topActions{gap:5px}.topActions>button:last-child{padding:6px;font-size:10px}.adminLink{font-size:10px}}

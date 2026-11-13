@@ -43,7 +43,14 @@ describe("词汇复习的真实学习边界", () => {
     s=vocabularyPractice.grade(s,cards[0],false,now);
     s=vocabularyPractice.grade(s,cards[0],true,now);
     expect(s.words.alpha.intervalDays).toBe(1);
-    expect(s.mistakes[0].resolved).toBeTrue();
+    expect(s.mistakes[0].resolved).toBeFalse();
+  });
+  it("同一天再次想起不延长间隔，也不伪造跨天复习",()=>{
+    let s=empty();s.vocabularySession=vocabularyPractice.start(s,[cards[0]],"2026-10-13",10,now);
+    s=vocabularyPractice.grade(s,cards[0],true,now);
+    s.vocabularySession=vocabularyPractice.start({...s,words:{}},[cards[0]],"2026-10-13",10,now);
+    s=vocabularyPractice.grade(s,cards[0],true,now+1000);
+    expect(s.words.alpha.intervalDays).toBe(1);expect(s.words.alpha.delayedSuccesses).toBe(0);
   });
   it("保持其他学习记录，并可序列化恢复未完成的一轮", () => {
     const s=withSession(); s.minutes=35;

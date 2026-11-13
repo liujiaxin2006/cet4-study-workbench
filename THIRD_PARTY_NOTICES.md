@@ -13,3 +13,5 @@ React、React Router、TanStack Query、Radix UI、Lucide、Zod、Kysely、postg
 
 历年试卷索引链接至南京大学在线教育平台、Ulearning、懒笔记和过级鸭的第三方资料页，不复制其题面、答案或音频。南京大学页面列有2023年12月至2026年6月18套自测；Ulearning页面列出2006—2018年条目，懒笔记自称有2015—2026年76套，过级鸭自称有2016—2026年62套。这些后两类数字和每个文件准确性、访问权限均未由本站逐份核验。页面版权说明以各来源页面及原考试机构为准；链接不表示本站获得题目再发布授权。来源：<https://eol.nju.edu.cn/cet4/>、<https://english.ulearning.cn/ulearning_web/portal/courseDetail.do?courseID=7473>、<https://english-exam.lazynote.cn/cet4/downloads/>、<https://www.guojiya.cn/exam/cet4/resources>。
 
+
+新增1000个语料候选词的中文释义及音标从同一MIT词库的 `vocabularies/cet4.json` 派生；来源与许可证同上。出现次数与材料/场次覆盖由用户提供的本地阅读语料计算，不沿用BNC顺序。`data/cet4-corpus/frequency.json`只记录统计和材料标识，原卷正文、答案全文、音频及OCR缓存不进入公开仓库。用户提供的真题资料不适用本项目MIT代码许可；商业题目公开前仍需确认相应发布权利。

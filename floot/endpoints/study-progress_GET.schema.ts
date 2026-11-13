@@ -5,7 +5,7 @@ export const studyStateSchema = z.object({
   version: z.literal(1),
   minutes: z.number().int().min(0).max(1000000),
   daily: z.record(z.string(), z.object({
-    minutes: z.number().int().min(0).max(60),
+    minutes: z.number().int().min(0).max(180),
     completed: z.array(z.string().max(40)).max(10),
     readingChoice: z.number().int().min(0).max(3).optional(),
     readingAnswers: z.array(z.number().int().min(0).max(3)).length(5).optional(),
@@ -19,7 +19,11 @@ export const studyStateSchema = z.object({
     intervalDays: z.number().int().min(0).max(365),
     dueAt: z.string().datetime(),
     lastResult: z.enum(["again", "remembered"]),
+    lastReviewedAt:z.string().datetime().optional(),
+    delayedSuccesses:z.number().int().min(0).max(100).optional(),
+    history:z.array(z.object({at:z.string().datetime(),remembered:z.boolean(),delayed:z.boolean(),intervalDays:z.number().min(0).max(365)})).max(20).optional(),
   })),
+  preferences:z.object({examDate:z.string().regex(/^20\d{2}-\d{2}-\d{2}$/).refine(v=>{const d=new Date(v+"T00:00:00Z");return !Number.isNaN(d.getTime())&&d.toISOString().slice(0,10)===v;},"考试日期无效"),dailyMinutes:z.union([z.literal(30),z.literal(60),z.literal(90)]),focus:z.enum(["auto","reading","listening","writing"])}).optional(),
   vocabularySession: z.object({
     date: z.string().max(10),
     startedAt: z.string().datetime(),
@@ -36,6 +40,10 @@ export const studyStateSchema = z.object({
     note: z.string().max(1200),
     createdAt: z.string().datetime(),
     resolved: z.boolean(),
+    reviewStage:z.number().int().min(0).max(3).optional(),
+    dueAt:z.string().datetime().optional(),
+    lastReviewedAt:z.string().datetime().optional(),
+    reviewAttempts:z.number().int().min(0).max(100000).optional(),
   })).max(500),
 }).strict();
 

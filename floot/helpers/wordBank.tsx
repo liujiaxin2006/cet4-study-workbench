@@ -1,3 +1,4 @@
+import {paperFrequencyWords} from "./wordBankFrequencies";
 import { supplementaryWords } from "./wordBankSupplement";
 import { corpusRankedWords } from "./wordBankCorpus";
 import { officialStarterWords } from "./wordBankOfficial";
@@ -563,8 +564,12 @@ const starterWordBank = [
   }
 ];
 
-export const wordBank = [...starterWordBank, ...supplementaryWords, ...officialStarterWords, ...corpusRankedWords] as Array<{
+const existingWords = [...starterWordBank, ...supplementaryWords, ...officialStarterWords, ...corpusRankedWords] as Array<{
   word: string; phonetic?: string; meaning: string; collocation?: string;
-  example?: string; translation?: string; note?: string; sourceRank?: number;
+  example?: string; translation?: string; note?: string; sourceRank?: number; cetFrequency?:number;materialCount?:number;examCount?:number;
 }>;
 
+
+const existingByWord=new Map(existingWords.map(w=>[w.word,w]));
+const frequencySet=new Set(paperFrequencyWords.map(w=>w.word));
+export const wordBank:typeof existingWords=[...paperFrequencyWords.map(w=>({...existingByWord.get(w.word),...w,meaning:existingByWord.get(w.word)?.meaning||w.meaning,note:(existingByWord.get(w.word)?.note||'')+' '+w.note})),...existingWords.filter(w=>!frequencySet.has(w.word))];

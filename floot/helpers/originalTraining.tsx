@@ -19,7 +19,7 @@ export const originalTraining = {
     explanation: "第二段指出，记录进度能帮助学习者发现有效方法和需要支持的地方。",
   },
   {
-    prompt: "The word “maintain” in Paragraph 1 is closest in meaning to ______.",
+    prompt: "The word “maintain” in the last paragraph is closest in meaning to ______.",
     choices: ["continue", "explain", "measure", "replace"],
     answer: 0,
     explanation: "“easier to maintain”意为“更容易维持/坚持”，最接近 continue。",
