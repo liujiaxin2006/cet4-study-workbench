@@ -20,20 +20,24 @@ def set_number(path):
     if re.search(r'_[23]-[23]',name):return '2-3'
     m=re.search(r'(?:第|卷|真题)\s*([123一二三])\s*(?:套|[)）]|$)',name)
     if not m:m=re.search(r'(?:卷[（(]?|[（(]卷)([123一二三])',name)
-    if not m:m=re.search(r'[_（(]([123])[）)]?$',name)
+    if not m:m=re.search(r'[_（(]([123])[）)]?(?:_ans(?:wer)?s?)?$',name,re.I)
     if not m:m=re.search(r'真题([123])$',name)
     return CN.get(m.group(1),m.group(1)) if m else None
 
 def strip_noise(text):
     lines=[]
     for line in text.splitlines():
-        if re.search(r'第\s*\d+\s*页.*共\s*\d+\s*页',line):continue
+        if re.search(r'第\s*\d+\s*页.*共\s*\d+\s*页',line) or re.fullmatch(r'\s*[-—－]?\s*\d{1,3}\s*[-—－]?\s*',line):continue
         if re.match(r'^\s*(?:大学英语四级考试|20\d\d\s*年.*真题|www\.|http)',line):continue
         lines.append(line.rstrip())
     return '\n'.join(lines)
 
 def choices(block,letters='ABCD'):
     # Reconstruct separately printed left and right option columns.
+    present=set(re.findall(r'(?<![A-Za-z])([A-O])[)）.．]',block))
+    missing=set(letters)-present
+    if re.search(r'(?<![A-Za-z0-9])0[)）]',block) and len(missing)==1 and next(iter(missing)) in ['C','O']:
+        block=re.sub(r'(?<![A-Za-z0-9])0([)）])',next(iter(missing))+r'\1',block)
     lines=block.splitlines();found=[]
     for line in lines:
         ms=list(re.finditer(r'(?<![A-Za-z])(['+letters+r'])[)）.．]\s*',line))
@@ -99,7 +103,7 @@ def parse_paper(text,answers):
     for key,kinds in [('listening',[('news','短篇新闻',1,7),('conversation','长对话',8,15),('listening-passage','听力篇章',16,25)]),('reading',[('reading','仔细阅读一',46,50),('reading','仔细阅读二',51,55)])]:
         section=parts.get(key,'')
         for kind,title,lo,hi in kinds:
-            ms=list(re.finditer(r'(?m)^\s*(\d{1,2})\s*[.．、]\s*',section));qs=[]
+            ms=list(re.finditer(r'(?m)^\s*(\d{1,2})\s*[.．、，,·@)]\s*',section));qs=[]
             for i,m in enumerate(ms):
                 n=int(m.group(1))
                 if not lo<=n<=hi:continue
@@ -115,8 +119,8 @@ def parse_paper(text,answers):
                 paragraphs=[]
                 if key=='reading':
                     # Whole passage stays together; never invent a missing passage.
-                    start=re.search(r'(?im)^\s*Passage\s+'+('One' if lo==46 else 'Two')+r'\s*$',section)
-                    first=re.search(r'(?m)^\s*'+str(lo)+r'\s*[.．、]',section)
+                    start=re.search(r'(?im)^\s*Passage\s+'+('(One|0ne|1)' if lo==46 else '(Two|2)')+r'\b',section)
+                    first=re.search(r'(?m)^\s*'+str(lo)+r'\s*[.．、，,·@)]',section)
                     if start and first and first.start()>start.end():
                         body=section[start.end():first.start()]
                         body=re.sub(r'^\s*Questions?\s+\d+.*?following passage\s*[.．]?','',body,flags=re.I|re.S)
@@ -124,7 +128,7 @@ def parse_paper(text,answers):
                 gid=kind if key=='listening' else ('reading-one' if lo==46 else 'reading-two')
                 groups.append(make_group(gid,kind,title,paragraphs,sorted(qs,key=lambda q:q['number'])))
     reading=parts.get('reading','')
-    sections={};ms=list(re.finditer(r'(?im)^\s*Section\s*([ABC])\b',reading))
+    sections={};ms=list(re.finditer(r'(?im)^\s*Sec[tl]ion\s*([ABC])\b',reading))
     for i,m in enumerate(ms):sections[m.group(1)]=reading[m.end():ms[i+1].start() if i+1<len(ms) else len(reading)]
     cloze=sections.get('A','');bank=choices(cloze,'ABCDEFGHIJKLMNO')
     if len(bank)==15:
@@ -139,11 +143,11 @@ def parse_paper(text,answers):
         groups.append(make_group('cloze','cloze','选词填空',[{'label':'1','text':body}],qs))
     matching=sections.get('B','')
     pms=list(re.finditer(r'(?m)^\s*([A-P])[)）]\s*',matching));paragraphs=[]
-    firstq=re.search(r'(?m)^\s*36\s*[.．、]',matching)
+    firstq=re.search(r'(?m)^\s*36\s*[.．、，,·@)]',matching)
     end=firstq.start() if firstq else len(matching)
     pms=[m for m in pms if m.start()<end]
     for i,m in enumerate(pms):paragraphs.append({'label':m.group(1),'text':clean(matching[m.end():pms[i+1].start() if i+1<len(pms) else end])})
-    qms=list(re.finditer(r'(?m)^\s*(\d{1,2})\s*[.．、]\s*',matching));qs=[]
+    qms=list(re.finditer(r'(?m)^\s*(\d{1,2})\s*[.．、，,·@)]\s*',matching));qs=[]
     for i,m in enumerate(qms):
         n=int(m.group(1))
         if 36<=n<=45:
@@ -152,9 +156,16 @@ def parse_paper(text,answers):
             qs.append(q)
     if qs:groups.append(make_group('matching','matching','长篇匹配',paragraphs,qs))
     translation=parts.get('translation','')
-    chinese=re.findall(r'[\u4e00-\u9fff][\u4e00-\u9fff，。；：、“”‘’（）《》\d\sA-Za-z%-]{60,}',translation)
-    if chinese:
-        task=clean(max(chinese,key=len))
+    translation=re.split(r'(?im)^\s*[〖【\[]?(?:参考答案|答案与详解|答案解析|答案详解|参考译文|参考翻译|结构框图|Suggested\s*Version|KEYS)',translation)[0]
+    translation=re.split(r'(?im)^\s*Part\s*(?:[IVXⅠⅡⅢⅣ12]+)\b',translation)[0]
+    kept=[];started=False
+    for line in translation.splitlines():
+        if re.search(r'答题卡|答题纸|此部分|注意[:：]',line) or re.match(r'^\s*(?:www\.|https?://)',line):continue
+        if re.search(r'[\u4e00-\u9fff]{3}',line):started=True
+        footer=re.fullmatch(r'\s*(?:[-—－]?\d+[-—－]?|(?:四级\s*)?20\d\d\s*[.．/]\s*\d{1,2}(?:\s*/\s*\d{1,3})?(?:\s*[（(]?\s*第?\s*[123一二三]\s*套\s*[)）]?)?)\s*',line)
+        if started and line.strip() and not footer:kept.append(line)
+    if kept:
+        task=clean(' '.join(kept))
         if len(task)<=3000:groups.append(make_group('translation','translation','段落翻译',[],[],task))
         else:issues.append('translation:section-boundary-needs-review')
     if not parts:issues.append('part-headings-not-recognized')

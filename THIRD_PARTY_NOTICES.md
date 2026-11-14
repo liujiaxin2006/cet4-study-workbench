@@ -15,3 +15,5 @@ React、React Router、TanStack Query、Radix UI、Lucide、Zod、Kysely、postg
 
 
 新增1000个语料候选词的中文释义及音标从同一MIT词库的 `vocabularies/cet4.json` 派生；来源与许可证同上。出现次数与材料/场次覆盖由用户提供的本地阅读语料计算，不沿用BNC顺序。`data/cet4-corpus/frequency.json`只记录统计和材料标识，原卷正文、答案全文、音频及OCR缓存不进入公开仓库。用户提供的真题资料不适用本项目MIT代码许可；商业题目公开前仍需确认相应发布权利。
+
+翻译练习的词语提示由上述 MIT CET-4 词库的中英释义反向整理，并补充本站常用表达；提示仅提供词语候选，不替代语境翻译。

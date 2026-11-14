@@ -10,13 +10,9 @@ export class ReviewError extends Error { constructor(message:string, public stat
 export const cetReview = {
   empty():ReviewAttempt { return {revision:0,answers:{},texts:{},submittedGroups:[]}; },
   publicPaper(paper:ReviewPaper,attempt:ReviewAttempt):ReviewPaper {
-    return {...paper,groups:paper.groups.map(group=>{
-      const {reference,rubric,...base}=group;
+    return {id:paper.id,title:paper.title,version:paper.version,status:paper.status,exam:paper.exam,objectiveCount:paper.objectiveCount,subjectiveCount:paper.subjectiveCount,sources:[],reviewNotes:[],groups:paper.groups.map(group=>{
       const submitted=attempt.submittedGroups.includes(group.id);
-      return {...base,...(submitted?{reference,rubric}:{}),questions:group.questions.map(q=>{
-        const {answer,analysis,...publicQuestion}=q;
-        return {...publicQuestion,...(submitted?{answer,analysis}:{})};
-      })};
+      return {id:group.id,kind:group.kind,title:group.title,sourcePages:group.sourcePages,paragraphs:group.paragraphs,note:group.note,task:group.task,wordRange:group.wordRange,audio:group.audio,audioStatus:group.audioStatus,...(submitted?{reference:group.reference,rubric:group.rubric}:{}),questions:group.questions.map(q=>({number:q.number,prompt:q.prompt,choices:q.choices,...(submitted?{answer:q.answer,analysis:q.analysis}:{})}))};
     })};
   },
   apply(paper:ReviewPaper,attempt:ReviewAttempt,command:ReviewCommand):ReviewAttempt {

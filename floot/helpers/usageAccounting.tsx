@@ -5,7 +5,7 @@ export const usageAccounting = {
   const reported=Math.max(0,input.activeSeconds-prior.reportedSeconds);
   const sessionElapsed=Math.max(0,Math.floor((now-prior.lastSeenAt)/1000));
   const userElapsed=Math.max(0,Math.floor((now-lastCreditedAt)/1000));
-  return {duplicate:false,seconds:Math.min(330,reported,sessionElapsed,userElapsed)};
+  return {duplicate:false,seconds:Math.min(660,reported,sessionElapsed,userElapsed)};
  },
  window(days:7|30,now=new Date()){
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);

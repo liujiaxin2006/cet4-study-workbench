@@ -31,3 +31,5 @@
 .finishIcon { color:var(--primary); }
 @media(max-width:520px) { .heading { align-items:flex-start; } .card { min-height:260px; } .prompt,.answer { padding:16px; } .grading { bottom: calc(68px + env(safe-area-inset-bottom)); margin-inline:-4px; padding-inline:4px; } .options button { flex:1; } }
 
+
+.roundLabel{margin:12px 0 24px;color:#867b98;font-size:14px}.notice:empty{display:none}.panel{max-width:760px;margin:auto}.setup{padding-top:18px!important}.heading{margin-bottom:16px!important}.card{min-height:250px}.note{display:none}

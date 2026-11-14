@@ -12,7 +12,7 @@ export async function handle(request:Request){try{
  const result=await sql<{source:any}>`SELECT s.value AS source FROM cet_review_papers p CROSS JOIN LATERAL jsonb_array_elements(p.payload->'sources') s WHERE s.value->>'id'=${id} LIMIT 1`.execute(db);
  const source=result.rows[0]?.source;
  if(!source)return cetReply({error:'资料不存在。'},{status:404});
- const extension=source.contentType==='audio/mpeg'?'.mp3':source.contentType==='text/markdown'?'.md':'.pdf';
+ const extension=source.contentType==='audio/mpeg'?'.mp3':source.contentType==='text/markdown'?'.md':source.contentType==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'?'.docx':source.contentType==='application/msword'?'.doc':'.pdf';
  const filename='cet4/review/'+source.sha256+extension;
  const info=await getInfo({visibility:'private',filename});
  if(!info.ok||!info.exists||info.sizeBytes!==source.bytes)return cetReply({error:'原始文件尚未传完或校验未通过。'},{status:503});

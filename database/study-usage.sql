@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS study_usage_ticks (
  user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
  module text NOT NULL,
  occurred_at timestamptz NOT NULL DEFAULT now(),
- active_seconds integer NOT NULL CHECK(active_seconds BETWEEN 1 AND 45),
+ active_seconds integer NOT NULL CHECK(active_seconds BETWEEN 1 AND 660),
  PRIMARY KEY(session_id,sequence)
 );
 CREATE INDEX IF NOT EXISTS study_usage_ticks_time ON study_usage_ticks(occurred_at);
