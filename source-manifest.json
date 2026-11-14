@@ -1,6 +1,6 @@
 {
   "source": "Floot project source snapshot",
-  "version": "1794639763479",
+  "version": "1794640018850",
   "exported_on": "2026-11-14",
   "excluded": [
     "component examples",
@@ -163,7 +163,7 @@
     "floot/helpers/cetReply.tsx": "e86e602bcb923d83cdfe8b5339eff7dc0610b96581d65e6c62006ddddacee96f",
     "floot/helpers/cetReview.spec.tsx": "e11cd4a21459a5ac9b61a71b98775a323e005234a4b11b1d5bf3a1d79298e607",
     "floot/helpers/cetReview.tsx": "73f3a66adcc40a4a0940f2be806706cd32a23483ff05374880278628474f6910",
-    "floot/helpers/corpusStaging.tsx": "da3cb65665775fec1d612d77ad4fb8d531aacc79d9f622cf0b10c0a93db2b692",
+    "floot/helpers/corpusStaging.tsx": "e946f02da0d255f6772642cfa6d748e8799de1cf7e5170118c1308daf8f773ba",
     "floot/helpers/db.tsx": "198d05ad7af163583cc39ef37098c1e2c7b4b62e771f493ede1951cd133dad75",
     "floot/helpers/flootAppExports.tsx": "97d3715275dce996b99b8027661a895516083d94dd688ab94b342ab56243ed96",
     "floot/helpers/generatePasswordHash.tsx": "43d480fce9bc73d61ba83c9f79fbbe11ca9d8f0a02814aeaf3d9515fa22181ef",
@@ -229,18 +229,19 @@
     "floot/static/manifest.json": "30f87af62aa2a01ce48af02c4b42b6cda3efe38bebf650b658ad971d0a765415"
   },
   "deployed_release": {
-    "releaseId": "17946397695373c9410f1-86ce-43fe-835c-cf5add186a01",
-    "publishedAt": "2026-11-14T07:02:47.782Z",
-    "sourceDigest": "f37aa23239de77aa7525dd484c05de3dbd303fda0e433f268bbc2bc75ec243be",
+    "releaseId": "179464004937509056f31-0921-4aca-84f6-0969c41e468e",
+    "publishedAt": "2026-11-14T07:07:28.383Z",
+    "sourceDigest": "295603de463b08c59c5c158f5af9f6e9fc05c2dded81c9936e56d91039a7a5c2",
     "sourceFileCount": 301,
     "url": "https://cet4-study-jiaxi.floot.app/",
-    "verification": "Platform TypeScript clean; 9 related spec files passed; local import regression and real PostgreSQL endpoint integration passed; public mobile and desktop home, words, my page and full cloze material checked.",
+    "verification": "Platform TypeScript clean; 9 related spec files passed; local import regression and real PostgreSQL endpoint integration passed; public mobile and desktop home, words, my page and full cloze material checked. Listening source metadata loaded in production: 1432 seconds, readyState 4, no media error.",
     "corpus": {
       "candidateEntries": 62,
       "readyGroups": 238,
       "readyObjectiveQuestions": 795,
       "readySubjectiveTasks": 128,
       "completeMockPapers": false
-    }
+    },
+    "laterFailedPublish": null
   }
 }

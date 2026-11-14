@@ -9,7 +9,7 @@ export async function stageCorpusBatch(input:{items:{paper:unknown;readyGroupIds
  return db.transaction().execute(async tx=>{const results=[];for(const {paper:raw,readyGroupIds} of batch.items){
   if(raw.sources.some(s=>!files.some(f=>f.path===s.path&&f.sha256===s.sha256&&f.bytes===s.bytes)))throw Error('A source does not match the approved corpus inventory.');
   if(readyGroupIds.some(id=>!raw.groups.some(g=>g.id===id)))throw Error('Unknown group selected for publication.');
-  if(raw.subjectiveCount!==raw.groups.filter(g=>g.kind==='writing'||g.kind==='translation').length||raw.subjectiveCount>(raw.id.endsWith('2-3')?4:2))throw Error('Subjective task count does not match the source package.');
+  if(raw.subjectiveCount!==raw.groups.filter(g=>g.kind==='writing'||g.kind==='translation').length||raw.subjectiveCount>(raw.id.endsWith('-2-3')?4:2))throw Error('Subjective task count does not match the source package.');
   const numbers=raw.groups.flatMap(g=>g.questions.map(q=>q.number));if(new Set(numbers).size!==numbers.length)throw Error('Duplicate question numbers in a paper.');
   const paper={...raw,status:readyGroupIds.length?'published':'needs-review',groups:raw.groups.map(g=>({...g,publication:readyGroupIds.includes(g.id)?'ready':'draft'}))} as PracticePaper;
   for(const g of paper.groups)if(g.publication==='ready'&&practiceModel.issues(g).length)throw Error(g.id+': '+practiceModel.issues(g).join('; '));
