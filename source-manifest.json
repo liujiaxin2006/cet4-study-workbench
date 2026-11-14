@@ -1,6 +1,6 @@
 {
   "source": "Floot project source snapshot",
-  "version": "1794640018850",
+  "version": "1794640917154",
   "exported_on": "2026-11-14",
   "excluded": [
     "component examples",
@@ -213,7 +213,7 @@
     "floot/helpers/wordBankFrequencies.tsx": "9cbd25dc67a91767c8ab51e314824bed0faacbbc72dd3219ae2cdfd3de101197",
     "floot/helpers/wordBankOfficial.tsx": "554fedf2a32c19c2cf2ac8830f051d53f2d3484849d0eb78c66f2ba4d96b9dc1",
     "floot/helpers/wordBankSupplement.tsx": "3b071edeea246095a62b129d08983f0fb5068cd46898ef77dd014c847ca5f124",
-    "floot/pages/_index.module.css": "2314e94a1dd13950de73a5938417d4339cec167066ca480820a21b77e53a6240",
+    "floot/pages/_index.module.css": "2d8cd9f4ef16bfe4972684afed4f1506c5c225a7885d4da7219a43ef4ec46faf",
     "floot/pages/_index.pageLayout.tsx": "2576801d4564f2890fe8646e557b3c5214128f7a259ca33ad02368121934432a",
     "floot/pages/_index.tsx": "6ce994c085fd6cfd2bb81192136d2d1eed04f311dab37c9947d46f5247082dbd",
     "floot/pages/admin.module.css": "f5fe685397d84a7ffb147467714cd8a58ab006f8504ea27a661be3d1ec1bd55e",
@@ -229,12 +229,12 @@
     "floot/static/manifest.json": "30f87af62aa2a01ce48af02c4b42b6cda3efe38bebf650b658ad971d0a765415"
   },
   "deployed_release": {
-    "releaseId": "179464004937509056f31-0921-4aca-84f6-0969c41e468e",
-    "publishedAt": "2026-11-14T07:07:28.383Z",
-    "sourceDigest": "295603de463b08c59c5c158f5af9f6e9fc05c2dded81c9936e56d91039a7a5c2",
+    "releaseId": "1794640923078831e813b-a4ef-496b-aa7c-394bef7a6849",
+    "publishedAt": "2026-11-14T07:22:02.102Z",
+    "sourceDigest": "45f90e02a89b24603228b88ed1a6e14e35d1147d314193881402ba6473a17f3b",
     "sourceFileCount": 301,
     "url": "https://cet4-study-jiaxi.floot.app/",
-    "verification": "Platform TypeScript clean; 9 related spec files passed; local import regression and real PostgreSQL endpoint integration passed; public mobile and desktop home, words, my page and full cloze material checked. Listening source metadata loaded in production: 1432 seconds, readyState 4, no media error.",
+    "verification": "CSS-only restoration of the original mobile dock position (17px plus safe area) and content clearance (105px plus safe area); exact values verified from published source; platform background typecheck clean. Prior functional checks retained.",
     "corpus": {
       "candidateEntries": 62,
       "readyGroups": 238,
