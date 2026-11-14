@@ -18,6 +18,6 @@ export const postStudyProgress = async (body: InputType, init?: RequestInit): Pr
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
   const result = superjson.parse<OutputType | { error: string }>(await response.text());
-  if (!response.ok) throw new Error("error" in result ? result.error : "保存失败，请重试。");
+  if (!response.ok) throw Object.assign(new Error("error" in result ? result.error : "保存失败，请重试。"),{status:response.status});
   return result as OutputType;
 };

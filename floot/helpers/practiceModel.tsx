@@ -19,7 +19,8 @@ export const practiceModel={
    const keys=Object.keys(q.choices);
    if(['news','conversation','listening-passage','reading'].includes(kind)&&keys.sort().join('')!=='ABCD')errors.push('选项不完整');
    if(kind==='cloze'&&keys.sort().join('')!=='ABCDEFGHIJKLMNO')errors.push('选词填空必须保留15个备选词');
-   if(kind==='cloze'&&Object.values(q.choices).some(v=>!/^([A-Za-z]+)(['’-][A-Za-z]+)*$/.test(v.trim())))errors.push('选词填空的备选词需要校对');
+   if(kind==='cloze'&&Object.values(q.choices).some(v=>v.trim().length<2||!/^([A-Za-z]+)(['’-][A-Za-z]+)*$/.test(v.trim())))errors.push('选词填空的备选词需要校对');
+   if(['news','conversation','listening-passage','reading'].includes(kind)&&Object.values(q.choices).some(v=>!/[A-Za-z]/.test(v)||/corresponding letter|Answer Sheet/i.test(v)||/^[A-Za-z]$/.test(v.trim())||/^(?:it can|at the|he is|she is|it is|they are|by the|in the|on the)[.!?]?$/i.test(v.trim())))errors.push('选项文字需要校对');
    if(kind==='matching'&&keys.some(k=>!group.paragraphs.some(p=>p.label===k)))errors.push('匹配选项没有对应段落');
    if(keys.some(k=>!q.choices[k].trim()||q.choices[k].length>350))errors.push('选项文字需要校对');
 

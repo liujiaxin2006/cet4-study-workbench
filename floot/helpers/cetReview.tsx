@@ -1,7 +1,7 @@
 export type Analysis = { kind: string; evidence: string; explanation: string; paragraph?: string; options?: Record<string,string>; vocabulary?: string[]; action: string };
 export type ReviewQuestion = { number:number; prompt:string; choices:Record<string,string>; answer?:string; analysis?:Analysis };
 export type ReviewGroup = { id:string; kind:string; title:string; sourcePages:number[]; paragraphs:{label:string;text:string}[]; questions:ReviewQuestion[]; note:string; task?:string; reference?:string; rubric?:string[]; wordRange?:number[]; audio?:string; audioStatus?:string };
-export type ReviewSource = { id:string; path:string; bytes:number; sha256:string; contentType:string };
+export type ReviewSource = { id:string; path:string; bytes:number; sha256:string; contentType:string; derivative?:{sha256:string;bytes:number;contentType:"audio/mp4"} };
 export type ReviewPaper = { id:string; title:string; version:number; status:string; exam:string; objectiveCount:number; subjectiveCount:number; sources:ReviewSource[]; groups:ReviewGroup[]; reviewNotes:string[] };
 export type ReviewAttempt = { revision:number; answers:Record<string,string>; texts:Record<string,string>; submittedGroups:string[] };
 export type ReviewCommand = { groupId:string; revision:number; action:'save'|'submit'|'restart'; answers:Record<string,string>; text:string };

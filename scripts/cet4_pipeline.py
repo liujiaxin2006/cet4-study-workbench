@@ -27,6 +27,7 @@ def set_number(path):
 def strip_noise(text):
     lines=[]
     for line in text.splitlines():
+        if len(line)<120 and re.search(r'(?:20\d\d\s*年\s*\d+\s*月.*四级|四级.*20\d\d\s*年)',line):continue
         if re.search(r'第\s*\d+\s*页.*共\s*\d+\s*页',line) or re.fullmatch(r'\s*[-—－]?\s*\d{1,3}\s*[-—－]?\s*',line):continue
         if re.match(r'^\s*(?:大学英语四级考试|20\d\d\s*年.*真题|www\.|http)',line):continue
         lines.append(line.rstrip())
@@ -45,7 +46,15 @@ def choices(block,letters='ABCD'):
     columns=[block]
     if found:
         split=sorted(found)[len(found)//2]-1
-        if split>20:columns=['\n'.join(line[:split] for line in lines),'\n'.join(line[split:] for line in lines)]
+        if split>20:
+            # The question number is removed from the first line before this
+            # function runs; its C option therefore starts earlier than D below.
+            # Never cut a labelled row through its actual second option.
+            offsets=[]
+            for line in lines:
+                labels=list(re.finditer(r'(?<![A-Za-z])(['+letters+r'])[)）.．]\s*',line))
+                offsets.append(labels[1].start() if len(labels)>1 else split)
+            columns=['\n'.join(line[:offset] for line,offset in zip(lines,offsets)),'\n'.join(line[offset:] for line,offset in zip(lines,offsets))]
     result={}
     for col in columns:
         matches=list(re.finditer(r'(?<![A-Za-z])(['+letters+r'])[)）.．]\s*',col))
@@ -78,6 +87,7 @@ def answer_candidates(text):
 
 def split_parts(text):
     text=strip_noise(unicodedata.normalize('NFKC',text))
+    text=re.sub(r'(?i)(Section\s+[ABC])\s*(?=Directions\s*[:：])',r'\n\1\n',text)
     first={}
     titles={'writing':'writing','listening':'listeningcomprehension','reading':'readingcomprehension','translation':'translation'}
     for m in re.finditer(r'(?m)^.*$',text):
@@ -119,7 +129,8 @@ def parse_paper(text,answers):
                 paragraphs=[]
                 if key=='reading':
                     # Whole passage stays together; never invent a missing passage.
-                    start=re.search(r'(?im)^\s*Passage\s+'+('(One|0ne|1)' if lo==46 else '(Two|2)')+r'\b',section)
+                    start=re.search(r'(?im)^\s*Passage\s*'+('(One|0ne|1)' if lo==46 else '(Two|2)')+r'\b',section)
+                    if not start:start=re.search(r'(?im)^\s*Questions?\s*'+str(lo)+r'\s*(?:to|and|[-—])\s*'+str(hi)+r'[^\n]*following\s+passage\s*[.．]?',section)
                     first=re.search(r'(?m)^\s*'+str(lo)+r'\s*[.．、，,·@)]',section)
                     if start and first and first.start()>start.end():
                         body=section[start.end():first.start()]
@@ -142,16 +153,18 @@ def parse_paper(text,answers):
         qs=[{'number':n,'prompt':'第'+str(n)+'空','choices':bank,**({'answer':answers[n]} if answers.get(n) in bank else {})} for n in range(26,36)]
         groups.append(make_group('cloze','cloze','选词填空',[{'label':'1','text':body}],qs))
     matching=sections.get('B','')
+    matching=re.sub(r'(?m)^[ \t]*\[([A-P])\][ \t]*',r'\1) ',matching)
     pms=list(re.finditer(r'(?m)^\s*([A-P])[)）]\s*',matching));paragraphs=[]
     firstq=re.search(r'(?m)^\s*36\s*[.．、，,·@)]',matching)
     end=firstq.start() if firstq else len(matching)
     pms=[m for m in pms if m.start()<end]
     for i,m in enumerate(pms):paragraphs.append({'label':m.group(1),'text':clean(matching[m.end():pms[i+1].start() if i+1<len(pms) else end])})
-    qms=list(re.finditer(r'(?m)^\s*(\d{1,2})\s*[.．、，,·@)]\s*',matching));qs=[]
+    statements=matching[end:] if firstq else ''
+    qms=list(re.finditer(r'(?m)^[ \t]*(3[6-9]|4[0-5])(?:[ \t]*[.．、，,·@)][ \t]*|[ \t]+(?=[A-Z][a-z]))',statements));qs=[]
     for i,m in enumerate(qms):
         n=int(m.group(1))
         if 36<=n<=45:
-            q={'number':n,'prompt':clean(matching[m.end():qms[i+1].start() if i+1<len(qms) else len(matching)]),'choices':{p['label']:'段落'+p['label'] for p in paragraphs}}
+            q={'number':n,'prompt':clean(statements[m.end():qms[i+1].start() if i+1<len(qms) else len(statements)]),'choices':{p['label']:'段落'+p['label'] for p in paragraphs}}
             if answers.get(n) in q['choices']:q['answer']=answers[n]
             qs.append(q)
     if qs:groups.append(make_group('matching','matching','长篇匹配',paragraphs,qs))

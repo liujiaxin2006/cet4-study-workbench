@@ -1,7 +1,48 @@
 import unittest
-from cet4_pipeline import set_number,parse_paper
-from cet4_prepare import answer_keys,answer_appendix,normalize_group,core_issues,confirmed_answers,answer_layout
+from cet4_pipeline import set_number,parse_paper,strip_noise,choices
+from cet4_prepare import answer_keys,answer_appendix,normalize_group,core_issues,confirmed_answers,answer_layout,question_text_ok,matching_marker_keys,source_answer_keys
 class ImportBoundaries(unittest.TestCase):
+ def test_numbered_chinese_explanation_header_survives_a_page_continuation(self):
+  self.assertEqual(answer_keys(['47. B)。定位)由题干定位到第二段。','下一题详解：因此选D。'])[47]['answer'],'B')
+ def test_exam_directions_are_not_usable_choices(self):
+  q={'prompt':'Choose an answer.','choices':{'A':'He explained the situation.','B':',','C':'and','D':'Then mark the corresponding letter on Answer Sheet 1.'}}
+  self.assertFalse(question_text_ok('news',q))
+ def test_matching_statement_with_a_missing_full_stop_keeps_its_printed_number(self):
+  raw='Part III Reading Comprehension\nSection B\nA) '+('A complete source paragraph. '*12)+'\n36. A statement about the source.\n40 Leah changed her career.\nSection C\nDirections: Read the next passage.'
+  groups,_=parse_paper(raw,{36:'A',40:'A'});g=next(g for g in groups if g['kind']=='matching');self.assertEqual([q['number'] for q in g['questions']],[36,40]);self.assertEqual(g['questions'][1]['prompt'],'Leah changed her career.')
+ def test_matching_keys_use_explicit_question_markers_in_translated_paragraphs(self):
+  pages=['D)这是原书逐段翻译中的实际段落，其中特别标出的题号是（36），应对应本段。\nF)这是另一段完整翻译，其中标出的题号为（41），并保留定位语句。\nI)这是第三段完整翻译，其中的题号为[40]，并保留定位语句。\n详细讲析\n（45）这不是新的段落对应标记。']
+  keys=matching_marker_keys(pages);self.assertEqual({n:k['answer'] for n,k in keys.items()},{36:'D',41:'F',40:'I'});self.assertNotIn(45,keys)
+ def test_one_parenthesized_number_does_not_establish_a_matching_key_layout(self):
+  self.assertEqual(matching_marker_keys(['A)一个包含很多中文说明的普通选项中偶然出现的数字（40），不能据此推断答案。']),{})
+ def test_paragraph_beginning_with_a_question_marker_is_not_attributed_to_its_predecessor(self):
+  raw='A)这里是一段完整的中文翻译，后面没有题号标记。\nB)（39）这是紧接题号的完整翻译句子，应该严格归属于本段。\nE)（42）这是另一段紧接题号的完整翻译句子，应该归属于本段。\nF)（45）这是第三段紧接题号的完整翻译句子，应该归属于本段。\n1)（41）这是无法确认段落字母的中文翻译，不应归属于前一段。'
+  self.assertEqual({n:v['answer'] for n,v in matching_marker_keys([raw]).items()},{39:'B',42:'E',45:'F'})
+ def test_first_option_row_trim_does_not_truncate_the_right_column(self):
+  block='A) He has to play football with workmates.            C) He is going to visit a friend.\n        B) He has got some books to read.                     D) He is physically unfit for it.'
+  bank=choices(block);self.assertEqual(bank['C'],'He is going to visit a friend.');self.assertEqual(bank['D'],'He is physically unfit for it.')
+ def test_answer_letters_stay_with_their_publisher_option_order(self):
+  refs=[{'path':'cet4_2023_12_1_ans.pdf','sha256':'latin','extension':'.pdf'},{'path':'中文解析第1套.pdf','sha256':'chinese','extension':'.pdf'}]
+  records={10:[{'answer':'B','confidence':0,'sha256':'latin'},{'answer':'A','confidence':3,'sha256':'chinese'}]}
+  self.assertEqual(source_answer_keys(records,{'path':'中文真题第1套.pdf','sha256':'paper'},refs)[0][10],'A')
+  self.assertEqual(source_answer_keys(records,{'path':'cet4_2023_12_1.pdf','sha256':'paper'},refs)[0][10],'B')
+ def test_chinese_answer_verdict_can_end_with_the_word_option(self):
+  self.assertEqual(answer_keys(['10. What do we learn?\n解析：他身体非常健康，故答案为A项。'])[10]['answer'],'A')
+ def test_reprinted_question_first_option_does_not_conflict_with_its_real_answer(self):
+  text='54. A) First option. B) Second option. C) Third option. D) Fourth option.\n54. C)【定位】原文定位说明。'
+  self.assertEqual(answer_keys([text])[54]['answer'],'C')
+  self.assertNotIn(54,answer_keys(['54. A) First. B) Second. C) Third. D) Fourth.']))
+ def test_plain_answer_labels_are_authoritative_not_another_option_discussion(self):
+  self.assertEqual(answer_keys(['26.答案：F）innovation\n详解：排除其他选项，下一题的答案为G。'])[26]['answer'],'F')
+ def test_square_bracket_paragraph_labels_remain_available_for_matching(self):
+  raw='Part III Reading Comprehension\nSection B\n[A] '+('A complete paragraph with authentic reading material. '*8)+'\n36. A statement about this paragraph.\nSection C\nDirections: Read the next text.'
+  groups,_=parse_paper(raw,{36:'A'});g=next(g for g in groups if g['kind']=='matching');self.assertEqual(g['paragraphs'][0]['label'],'A');self.assertNotIn('Directions',g['questions'][0]['prompt'])
+ def test_footer_is_not_added_to_the_reading_passage(self):
+  self.assertEqual(strip_noise('A real sentence.\n19 • 2023年 12月四级真题(第三套)・'),'A real sentence.')
+ def test_truncated_options_do_not_pass_as_complete_questions(self):
+  q={'prompt':'What happened during the interview?','choices':{'A':'He explained the situation.','B':'At the','C':'I','D':'They accepted the proposal.'}}
+  self.assertFalse(question_text_ok('reading',q))
+
  def test_offset_gutter_and_short_column_regions_keep_answers_with_their_questions(self):
   words=[]
   for row,(left,right) in enumerate([('46. A) answer','48. C) answer'),('detail left','detail right'),('47. B) answer','49. D) answer')]):

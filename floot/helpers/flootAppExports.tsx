@@ -32,4 +32,8 @@ export async function readOwnerDashboard(input:{days:7|30;q?:string;page?:number
  return adminDashboardData({days:input.days,q:input.q||'',page:input.page||1});
 }
 
-export {stageCorpusBatch,prepareCorpusUploads} from './corpusStaging';
+import {stageCorpusBatch as stageBatch,prepareCorpusUploads as prepareUploads} from './corpusStaging';
+/** Validate and stage owner-supplied exam packages against the approved inventory. */
+export async function stageCorpusBatch(input:Parameters<typeof stageBatch>[0],ctx:AppCallContext){return stageBatch(input,ctx);}
+/** Prepare private uploads of approved original sources or compressed audio derivatives. */
+export async function prepareCorpusUploads(input:Parameters<typeof prepareUploads>[0],ctx:AppCallContext){return prepareUploads(input,ctx);}

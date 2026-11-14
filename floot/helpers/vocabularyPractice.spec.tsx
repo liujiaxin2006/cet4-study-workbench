@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { render, fireEvent, screen, waitFor, cleanup } from "@testing-library/react";
 import { vocabularyPractice } from "./vocabularyPractice";
+import {wordBank} from "./wordBank";
 import { VocabularyPractice } from "../components/VocabularyPractice";
 import { studyStateSchema, StudyState } from "../endpoints/study-progress_GET.schema";
 
@@ -101,3 +102,19 @@ describe("词卡操作流程", () => {
   });
 });
 
+
+function FastHarness({fail=false}:{fail?:boolean}){
+ const [s,setS]=useState(()=>{const init=empty();init.vocabularySession=vocabularyPractice.start(init,wordBank.slice(0,3),"2026-10-13",3,now);return init;});
+ return <VocabularyPractice state={s} today="2026-10-13" saving={true} onNext={()=>{}} onSave={()=>new Promise(()=>{})} onSaveLocal={next=>{if(fail)throw Error("local storage full");setS(next);}}/>;
+}
+describe("instant word transitions with durable background sync",()=>{
+ afterEach(cleanup);
+ it("advances and permits revealing the next word while the network is still pending",()=>{
+  const view=render(<FastHarness/>);fireEvent.click(view.getByRole("button",{name:"查看释义"}));fireEvent.click(view.getByRole("button",{name:"记住了"}));
+  expect(view.getByText(wordBank[1].word)).toBeTruthy();expect(view.getByRole("button",{name:"查看释义"}).hasAttribute("disabled")).toBeFalse();expect(view.queryByRole("button",{name:"记住了"})).toBeNull();
+ });
+ it("does not move past a word if the local safety copy cannot be written",()=>{
+  const view=render(<FastHarness fail/>);fireEvent.click(view.getByRole("button",{name:"查看释义"}));fireEvent.click(view.getByRole("button",{name:"没记住"}));
+  expect(view.getByText(wordBank[0].word)).toBeTruthy();
+ });
+});

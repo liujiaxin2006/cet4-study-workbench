@@ -1,5 +1,5 @@
 import {getWordContext,type WordContext} from "../endpoints/word-context_GET.schema";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, RotateCcw, Volume2, ArrowRight, Pause, Play } from "lucide-react";
 import { Button } from "./Button";
 import {useStudyActivity} from "../helpers/studyActivity";
@@ -8,8 +8,10 @@ import { vocabularyPractice } from "../helpers/vocabularyPractice";
 import type { StudyState } from "../endpoints/study-progress_GET.schema";
 import styles from "./VocabularyPractice.module.css";
 
-type Props = { state: StudyState; today: string; saving: boolean; onSave: (state: StudyState) => Promise<void>; onNext: () => void };
-export function VocabularyPractice({ state, today, saving, onSave, onNext }: Props) {
+const cardsByWord=new Map(wordBank.map(w=>[w.word,w]));
+
+type Props = { state: StudyState; today: string; saving: boolean; onSave: (state: StudyState) => Promise<void>; onSaveLocal?: (state: StudyState) => void; onNext: () => void };
+export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, onNext }: Props) {
   const [revealed, setRevealed] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const limit=state.preferences?.wordCount||10;
@@ -22,13 +24,13 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
   const gate = useRef(false);
   const panel = useRef<HTMLElement>(null);
   const session = state.vocabularySession?.date === today ? state.vocabularySession : undefined;
-  const current = wordBank.find(w => w.word === session?.queue[0]);
+  const current = cardsByWord.get(session?.queue[0]||"");
   const currentWordRef=useRef("");currentWordRef.current=current?.word||"";
-  const preview = vocabularyPractice.start(state, cards, today, limit);
+  const preview = useMemo(()=>vocabularyPractice.start(state,cards,today,limit),[state.words,cards,today,limit]);
   const due = cards.filter(w => state.words[w.word] && Date.parse(state.words[w.word].dueAt) <= Date.now()).length;
   const fresh = cards.filter(w => !state.words[w.word]).length;
-  const weak = cards.filter(w => state.mistakes.some(m => m.area === "vocabulary" && m.prompt === w.word && !m.resolved));
-  const disabled = saving || busy;
+  const weak = useMemo(()=>{const missed=new Set(state.mistakes.filter(m=>m.area==="vocabulary"&&!m.resolved).map(m=>m.prompt));return cards.filter(w=>missed.has(w.word));},[state.mistakes,cards]);
+  const disabled = busy || (!onSaveLocal && saving);
   const finished = !!session && session.queue.length === 0;
   useStudyActivity("words",!!current&&!finished&&!paused);
   const sameCardAttempt = current ? session?.attempts[current.word] : undefined;
@@ -36,9 +38,9 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
   useEffect(() => { setRevealed(false); setShowTranslation(false);setContexts(null); }, [current?.word, sameCardAttempt, session?.startedAt]);
   useEffect(() => () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); }, []);
   async function persist(next: StudyState, message: string) {
-    if (gate.current || saving) return false;
+    if (gate.current || (!onSaveLocal && saving)) return false;
     gate.current = true; setBusy(true); setError("");
-    try { await onSave(next); setNotice(""); return true; }
+    try { if(onSaveLocal){onSaveLocal(next);setRevealed(false);setShowTranslation(false);}else await onSave(next); setNotice(""); return true; }
     catch (e) { setError(e instanceof Error ? e.message : "保存失败，请重试。"); return false; }
     finally { gate.current = false; setBusy(false); }
   }
@@ -78,7 +80,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onNext }: Pro
   return <section ref={panel} className={styles.panel} aria-label="词汇主动回忆" tabIndex={0}>
     <div className={styles.heading}><div><h2>背单词</h2></div><span className={styles.badge}>待复习 {due} · 新词 {fresh}</span></div>
     {error && <p className={styles.error} role="alert">{error} 本次操作未确认保存。请检查当前词卡后重试，切勿直接当作完成。</p>}
-    <p className={styles.notice} role="status" aria-live="polite">{disabled ? "正在保存到账号…" : notice}</p>
+    <p className={styles.notice} role="status" aria-live="polite">{disabled ? "正在保存…" : onSaveLocal&&saving ? "同步中" : notice}</p>
     {(!session || finished) && <div className={styles.setup}>
       {finished ? <><Check className={styles.finishIcon} size={32}/><h3>这一轮完成了</h3><p>{session.total} 个词 · 待加强 {session.deferred.length} 个</p></> : <p className={styles.roundLabel}>每组 {limit} 词</p>}
       <div className={styles.actions}><Button size="lg" disabled={disabled||preview.total===0} onClick={()=>void start()}>开始{finished?"下一轮":"学习"}</Button>{finished&&<Button variant="outline" onClick={onNext}>去练习 <ArrowRight size={18}/></Button>}</div>

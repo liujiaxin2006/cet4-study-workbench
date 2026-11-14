@@ -13,9 +13,10 @@ export async function handle(request:Request){try{
  const source=result.rows[0]?.source;
  if(!source)return cetReply({error:'资料不存在。'},{status:404});
  const extension=source.contentType==='audio/mpeg'?'.mp3':source.contentType==='text/markdown'?'.md':source.contentType==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'?'.docx':source.contentType==='application/msword'?'.doc':'.pdf';
- const filename='cet4/review/'+source.sha256+extension;
+ const stored=source.contentType==='audio/mpeg'&&source.derivative?source.derivative:source;
+ const filename='cet4/review/'+stored.sha256+(stored===source?extension:'.m4a');
  const info=await getInfo({visibility:'private',filename});
- if(!info.ok||!info.exists||info.sizeBytes!==source.bytes)return cetReply({error:'原始文件尚未传完或校验未通过。'},{status:503});
+ if(!info.ok||!info.exists||info.sizeBytes!==stored.bytes)return cetReply({error:'原始文件尚未传完或校验未通过。'},{status:503});
  const link=await getUrl({visibility:'private',filename,expiresInSeconds:3600});if(!link.ok)throw new Error(link.error.message);
  return cetReply({url:link.url},{headers:{'Cache-Control':'no-store'}});
  }catch(e){return cetReply({error:e instanceof NotAuthenticatedError?'请先登录。':'读取私有资料失败。'},{status:e instanceof NotAuthenticatedError?401:500,headers:{'Cache-Control':'no-store'}});}}
