@@ -142,13 +142,16 @@ def parse_paper(text,answers):
     sections={};ms=list(re.finditer(r'(?im)^\s*Sec[tl]ion\s*([ABC])\b',reading))
     for i,m in enumerate(ms):sections[m.group(1)]=reading[m.end():ms[i+1].start() if i+1<len(ms) else len(reading)]
     cloze=sections.get('A','');bank=choices(cloze,'ABCDEFGHIJKLMNO')
-    if len(bank)==15:
+    if len(bank)>=8:
+        rows=list(re.finditer(r'(?m)^.*$',cloze));table=next((m for m in rows if len(re.findall(r'(?<![A-Za-z])[A-O][)）.．]',m[0]))>=2),None)
         first=re.search(r'(?<![A-Za-z])A[)）.．]',cloze)
-        body=cloze[:first.start()] if first else cloze
+        body=cloze[:table.start()] if table else cloze[:first.start()] if first else cloze
         # Instructions end at "centre."/"center." in the supplied paper formats.
         boundary=list(re.finditer(r'(?:centre|center)\s*\.',body,re.I))
         if boundary:body=body[boundary[-1].end():]
         body=re.sub(r'注意[:：].*?作答[。.]?','',body,flags=re.S)
+        body=re.sub(r'[_＿]+[ \t]*(2[6-9]|3[0-5])[ \t]*[_＿]+',r'[\1]',body)
+        body=re.sub(r'[ \t]{2,}(2[6-9]|3[0-5])[ \t]{2,}(?=[A-Za-z])',r' [\1] ',body)
         body=clean(body)
         qs=[{'number':n,'prompt':'第'+str(n)+'空','choices':bank,**({'answer':answers[n]} if answers.get(n) in bank else {})} for n in range(26,36)]
         groups.append(make_group('cloze','cloze','选词填空',[{'label':'1','text':body}],qs))

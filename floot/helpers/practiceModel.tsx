@@ -28,6 +28,7 @@ export const practiceModel={
   }
   if(new Set(group.questions.map(q=>q.number)).size!==group.questions.length)errors.push('题号重复');
   if(kind==='cloze'&&new Set(group.questions.map(q=>JSON.stringify(Object.entries(q.choices).sort(([a],[b])=>a.localeCompare(b))))).size>1)errors.push('选词填空的词库不一致');
+  if(kind==='cloze'&&group.paragraphs.flatMap(p=>Array.from(p.text.matchAll(/\[(2[6-9]|3[0-5])\]/g),m=>Number(m[1]))).join(',')!==Array.from({length:10},(_,i)=>26+i).join(','))errors.push('填空编号或位置需要校对');
   if(kind==='cloze'&&new Set(group.questions.map(q=>q.answer)).size!==10)errors.push('选词填空参考答案重复');
   if(['news','conversation','listening-passage'].includes(kind)&&(!group.audio||group.audioStatus!=='verified'))errors.push('录音尚未核验');
   return [...new Set([...errors,...(group.issues||[])])];

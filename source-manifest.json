@@ -1,6 +1,6 @@
 {
   "source": "Floot project source snapshot",
-  "version": "1794677920593",
+  "version": "1794701656117",
   "exported_on": "2026-11-15",
   "excluded": [
     "component examples",
@@ -173,8 +173,8 @@
     "floot/helpers/learningPlan.tsx": "305504794b3dd331bdd7516e5ccc46f6edb5d511458458e57b802e95e454c9d0",
     "floot/helpers/mistakeReview.tsx": "b5521442769d7109bf77bc2ca89d32d28cba26cbd9075f7567b01ca9a1c3f06a",
     "floot/helpers/originalTraining.tsx": "ca5feda416d574c0af78df8244801821ad865c14ea7eb0b5ce749f4502160f7d",
-    "floot/helpers/practiceModel.spec.tsx": "6feeadc9f1ee02b81c1b91e8d03a679581b0de22ff400e049f18d57c35df23a1",
-    "floot/helpers/practiceModel.tsx": "4d2035c1b705310f9c7d68d53769359563372d68f5e5178fc5ce359c86ca4cf2",
+    "floot/helpers/practiceModel.spec.tsx": "4e38e1f08e32417df3268cef1653b53020673678cee3d412beda6700622c7326",
+    "floot/helpers/practiceModel.tsx": "73f73352aa582a0e2439a7d74ca7d8358919fc91fcdda857ade6402c9b555d8e",
     "floot/helpers/practiceSession.spec.tsx": "0d80021dbc2269b679605d35070d27bba2faf2cb20b288b459f15998ae20d19c",
     "floot/helpers/requireAdmin.tsx": "6f4b9515a4423b45a77e9cb64997c892dbf3df6eb21355d0b1c925e606cabe31",
     "floot/helpers/safeReturnPath.spec.tsx": "176cc7fb13616c8339f8e463fd11cc4dd61038694aa1a4e7390158899931c62f",
@@ -231,16 +231,16 @@
     "floot/static/manifest.json": "30f87af62aa2a01ce48af02c4b42b6cda3efe38bebf650b658ad971d0a765415"
   },
   "deployed_release": {
-    "releaseId": "17946968633613aba5e7b-113d-4163-a809-62a1cb992d07",
-    "publishedAt": "2026-11-14T22:54:22.366Z",
-    "sourceDigest": "6537da690867302a6806a2bd766fd11e75d4450ada105dea62972fa43497d8d4",
+    "releaseId": "1794701787276cc225eb3-0e83-4dfd-ba82-a6fc9509feeb",
+    "publishedAt": "2026-11-15T00:16:25.381Z",
+    "sourceDigest": "3834eadaac02783ef021b2fc99823f4a70fcd97347dc7c5b68a88e5dff2f63e3",
     "sourceFileCount": 303,
     "url": "https://cet4-study-jiaxi.floot.app/",
-    "verification": "Platform typecheck and four relevant spec files passed; local durable-sync and word-card interaction specs, 32 model cases and PostgreSQL/endpoint integration checks, 30 ingestion regression cases; public HTTP 200 with app title. Private audio objects verified by exact stored size.",
+    "verification": "Platform typecheck and four relevant spec files passed; 8 durable-sync and 14 word-card specs, 33 model cases and real PostgreSQL/endpoint integration checks, 44 ingestion regression cases; all 62 version-5 packages passed actual owner staging/publication validation. Production counts checked after update; public HTTP 200.",
     "corpus": {
       "candidateEntries": 62,
-      "readyGroups": 330,
-      "readyObjectiveQuestions": 1480,
+      "readyGroups": 387,
+      "readyObjectiveQuestions": 1965,
       "readySubjectiveTasks": 128,
       "playableRecordings": 9,
       "completeMockPapers": false

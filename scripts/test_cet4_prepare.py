@@ -32,6 +32,47 @@ class ImportBoundaries(unittest.TestCase):
   text='54. A) First option. B) Second option. C) Third option. D) Fourth option.\n54. C)【定位】原文定位说明。'
   self.assertEqual(answer_keys([text])[54]['answer'],'C')
   self.assertNotIn(54,answer_keys(['54. A) First. B) Second. C) Third. D) Fourth.']))
+ def test_matching_ambiguous_i_requires_both_adjacent_paragraph_labels(self):
+  text='H)（36）这是完整中文译文段落，其中明确包含了题号定位。\n1)（41）这是完整中文译文段落，其中明确包含了题号定位。\nJ)（43）这是完整中文译文段落，其中明确包含了题号定位。'
+  self.assertEqual(matching_marker_keys([text])[41]['answer'],'I')
+ def test_ten_printed_cloze_markers_restore_only_a_bounded_numbering_error(self):
+  text=' '.join('word __'+('28' if n==29 else str(n))+'__' for n in range(26,36))
+  g={'kind':'cloze','questions':[],'paragraphs':[{'label':'1','text':text}]};normalize_group(g)
+  self.assertEqual(g['paragraphs'][0]['text'].count('[29]'),1);self.assertEqual(g['paragraphs'][0]['text'].count('[28]'),1)
+ def test_bracketed_answer_after_translation_is_an_explicit_reference_key(self):
+  text='36.〖译文〗这是一条完整的题干翻译。\n〖答案〗[G]\n〖解析〗本段可以定位答案。'
+  self.assertEqual(answer_keys([text])[36]['answer'],'G')
+ def test_q_numbered_reference_headers_and_fullwidth_colons_are_read(self):
+  self.assertEqual(answer_keys(['Q46： 原题译文\n【答案】（D）\n【解析】本题定位原文。'])[46]['answer'],'D')
+ def test_two_labelled_answers_in_one_ocr_block_remain_unconfirmed(self):
+  self.assertNotIn(36,answer_keys(['36.〖译文〗原题\n〖答案〗[G]\n模糊的下一题\n〖答案〗[D]']))
+ def test_next_page_question_is_not_appended_to_the_previous_answer_block(self):
+  pages=['48. Original question.\n解析：因此故选C。','Q49： Next question.\n〖答案〗[D]']
+  keys=answer_keys(pages);self.assertEqual(keys[48]['answer'],'C');self.assertEqual(keys[49]['answer'],'D')
+ def test_answer_analysis_label_contains_an_explicit_answer_letter(self):
+  self.assertEqual(answer_keys(['46.【答案解析】A 由原文可以定位。'])[46]['answer'],'A')
+ def test_a_section_heading_followed_by_an_english_article_is_not_a_labelled_key(self):
+  self.assertNotIn(26,answer_keys(['26. Original material.\n【答案解析】\nA historical perspective explains the issue.']))
+ def test_matching_reference_prefix_uses_letters_i_and_o_not_numeric_ocr_shapes(self):
+  self.assertEqual(answer_keys(['39.【定位】定位到原文O段。\n0)【精析】本题按同义改写定位。'])[39]['answer'],'O')
+  self.assertEqual(answer_keys(['41.【答案】[1]'])[41]['answer'],'I')
+  self.assertNotIn(46,answer_keys(['46. 0) an unconfirmed multiple choice label']))
+ def test_context_answer_prefix_outweighs_discussion_of_other_options(self):
+  text='28.【考点】语义理解题。\nD)【语法判断】本句为被动语态。\n【语义判断】其他例子里答案为F，本题应填分类。'
+  self.assertEqual(answer_keys([text])[28]['answer'],'D')
+ def test_wrapped_location_quote_does_not_hide_its_printed_answer_prefix(self):
+  text='54.【定位】引用很长的原文，\n继续到第二行。\nA)【精析】这是一道推理题。'
+  self.assertEqual(answer_keys([text])[54]['answer'],'A')
+ def test_partial_cloze_bank_preserves_the_passage_for_same_source_recovery(self):
+  bank='\n'.join(k+') word'+k.lower() for k in 'ABCDEFGHIJKLMN')
+  raw='Part III Reading Comprehension\nSection A\nDirections: fill blanks. centre.\nA complete source passage '+ ' '.join('__'+str(n)+'__ content' for n in range(26,36))+'\n'+bank+'\nSection B'
+  groups,_=parse_paper(raw,{});g=next(g for g in groups if g['kind']=='cloze');self.assertEqual(len(g['questions']),10);self.assertEqual(g['paragraphs'][0]['text'].count('[26]'),1);self.assertIn('word-bank',core_issues(g))
+ def test_explicit_cloze_gaps_do_not_turn_an_ordinary_calendar_date_into_a_second_gap(self):
+  raw='Part III Reading Comprehension\nSection A\nDirections: use the bank. centre.\nThe __26__ day is not April 26, but the passage has '+ ' '.join('__'+str(n)+'__ content' for n in range(27,36))+'\n'+ '\n'.join(k+') word'+k.lower() for k in 'ABCDEFGHIJKLMNO')+'\nSection B'
+  g=next(g for g in parse_paper(raw,{})[0] if g['kind']=='cloze');normalize_group(g);self.assertEqual(g['paragraphs'][0]['text'].count('[26]'),1);self.assertIn('April 26,',g['paragraphs'][0]['text'])
+ def test_cloze_gaps_must_follow_their_original_question_order(self):
+  g={'kind':'cloze','paragraphs':[{'label':'1','text':'A complete original passage. '*20+' [26] [27] [28] [29] [30] [34] [32] [33] [31] [35]'}],'questions':[]}
+  self.assertIn('blank-order',core_issues(g))
  def test_plain_answer_labels_are_authoritative_not_another_option_discussion(self):
   self.assertEqual(answer_keys(['26.答案：F）innovation\n详解：排除其他选项，下一题的答案为G。'])[26]['answer'],'F')
  def test_square_bracket_paragraph_labels_remain_available_for_matching(self):

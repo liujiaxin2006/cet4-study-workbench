@@ -111,9 +111,10 @@ def text(root,f,cache):
 
 def answer_keys(pages):
     result=collections.defaultdict(list)
+    heading=re.compile(r'(?m)^\s*(?:Q\s*)?(\d{1,2})(?:\s*[.．、，,·@:：]\s*|\s+(?=[A-Za-z10〖【\[]))',re.I)
     for pageNo,page in enumerate(pages,1):
         if pageNo<len(pages):
-            continuation=re.split(r'(?m)^\s*\d{1,2}\s*[.．、，,·@]\s*',pages[pageNo])[0]
+            continuation=heading.split(pages[pageNo],1)[0]
             page+='\n'+continuation[:10000]
         # Answer-only PDFs also include compact number/letter tables.
         for line in page.splitlines():
@@ -138,20 +139,31 @@ def answer_keys(pages):
             else:cursor=max(cursor+1,end)
         # A key is accepted only with an explicit answer label, or at the beginning
         # of a numbered explanation. MC options in a paper are never scanned here.
-        matches=list(re.finditer(r'(?m)^\s*(\d{1,2})(?:\s*[.．、，,·@]\s*|\s+(?=[A-Za-z10]))',page))
+        matches=list(heading.finditer(page))
         for i,m in enumerate(matches):
             n=int(m.group(1));block=page[m.end():matches[i+1].start() if i+1<len(matches) else len(page)]
             if not 1<=n<=55:continue
             block=re.sub(r'^([a-o])([)）])',lambda m:m.group(1).upper()+m.group(2),block)
+            labelled=re.findall(r'[〖【\[]\s*(?:参考答案|正确答案|答案解析|答案详解|答案)\s*[〗】\]][ \t]*[:：]?[ \t]*[\[【（(]?[ \t]*([A-P01])(?=[)）\]】\s]|$)',block,re.I)
+            if labelled:
+                labelled=[{'0':'O','1':'I'}.get(v,v.upper()) if 26<=n<=45 else v.upper() for v in labelled]
+                if len({v.upper() for v in labelled})==1:result[n].append({'answer':labelled[0].upper(),'page':pageNo,'method':'explicit-labelled-answer'})
+                continue
             explicit=re.match(r'(?:[〖【\[]\s*)?(?:参考答案|正确答案|答案)(?:\s*[〗】\]])?\s*[:：]?\s*([A-P])(?=[)）\s]|$)',block,re.I)
             if explicit:
                 result[n].append({'answer':explicit[1].upper(),'page':pageNo,'method':'explicit-labelled-answer'});continue
             header=re.match(r'([A-P])[)）][。．.、\s]*(?:[〖【（(]?(?:定位|详解|考点|解析|答案)|[\u4e00-\u9fff])',block)
             if header:
                 result[n].append({'answer':header[1],'page':pageNo,'method':'explicit-explanation-header'});continue
-            prefix=re.match(r'[〖【\[](?:参考答案|正确答案|答案)[〗】\]]\s*[:：]?\s*([A-P])(?=[)）\]】.\s]|$)',block) or re.match(r'([A-P])[)）\]】.]',block)
-            if not prefix:prefix=re.match(r'[〖【（](?:考点|定位)[〗】）][^\n]*\n\s*([A-P])[)）]',block)
-            if not prefix and 26<=n<=35:prefix=re.search(r'(?m)^\s*([A-O])[)）]\s*',block)
+            if re.match(r'[〖【（](?:考点|定位)[〗】）]',block):
+                prefixes=re.findall(r'(?m)^[ \t]*([A-P01])[)）][ \t]*[〖【（](?:语法判断|语义判断|精析|详解|解析|语法|语义|考点)',block[:1500])
+                prefixes=[{'0':'O','1':'I'}.get(v,v) if 26<=n<=45 else v for v in prefixes]
+                if prefixes:
+                    if len(set(prefixes))==1 and prefixes[0] in ('ABCD' if n<=25 or n>=46 else 'ABCDEFGHIJKLMNO' if n<=35 else 'ABCDEFGHIJKLMNOP'):result[n].append({'answer':prefixes[0],'page':pageNo,'method':'explicit-context-answer-prefix'})
+                    continue
+            prefix=re.match(r'[〖【\[](?:参考答案|正确答案|答案)[〗】\]]\s*[:：]?\s*([A-P])(?=[)）\]】.\s]|$)',block) or re.match(r'([A-P01])[)）\]】.]',block)
+            if not prefix:prefix=re.match(r'[〖【（](?:考点|定位)[〗】）][^\n]*\n\s*([A-P01])[)）]',block)
+            if not prefix and 26<=n<=45:prefix=re.search(r'(?m)^\s*([A-P01])[)）]\s*',block)
             if not prefix and re.search(r'详解|解析',block[:180]):
                 prefix=re.search(r'(?m)^\s*([A-P])[)）](?=[^\n]{0,80}(?:详解|解析))',block)
             candidates=re.findall(r'(?:正确答案|答案)(?:应|应该)?(?:为|是|选|选择)\s*([A-P])(?=[)）\s。．.,，项]|$)',block,re.I)
@@ -165,7 +177,7 @@ def answer_keys(pages):
             # their explanation. Their first A option is never an answer key.
             beforeChinese=re.split('[\u4e00-\u9fff]',block,1)[0]
             if prefix and len(re.findall(r'(?<![A-Za-z])[A-D][)）]',beforeChinese))>=3:prefix=None
-            if prefix:candidates.append(prefix.group(1))
+            if prefix:candidates.append({'0':'O','1':'I'}.get(prefix.group(1),prefix.group(1)) if 26<=n<=45 else prefix.group(1))
             if candidates and len(set(candidates))==1:result[n].append({'answer':candidates[0],'page':pageNo,'method':'explicit-answer-explanation'})
     return {n:vs[0] for n,vs in result.items() if len({v['answer'] for v in vs})==1 and vs[0]['answer'] in ('ABCD' if n<=25 or n>=46 else 'ABCDEFGHIJKLMNO' if n<=35 else 'ABCDEFGHIJKLMNOP')}
 
@@ -174,12 +186,18 @@ def matching_marker_keys(pages):
     # translation inside the answer paragraph. This is an explicit source key.
     raw='\n\f\n'.join(pages);headers=list(re.finditer(r'(?m)^[ \t]*(?:([A-P0-9l])[)）]|\[([A-P0-9l])\])[ \t]*',raw));records=collections.defaultdict(list)
     for i,m in enumerate(headers):
-        if (m[1] or m[2]) not in 'ABCDEFGHIJKLMNOP':continue
+        label=m[1] or m[2]
+        # Resolve only a single ambiguous glyph between consecutive printed labels.
+        previous=(headers[i-1][1] or headers[i-1][2]) if i else ''
+        following=(headers[i+1][1] or headers[i+1][2]) if i+1<len(headers) else ''
+        if label in ['1','l'] and previous=='H' and following=='J':label='I'
+        if label=='0' and previous=='N' and following=='P':label='O'
+        if label not in 'ABCDEFGHIJKLMNOP':continue
         block=raw[m.end():headers[i+1].start() if i+1<len(headers) else len(raw)]
         block=re.split(r'详细讲析|详细解析|试题详解|答案详解|(?im:^\s*Section\s+C)',block)[0]
         if len(re.findall('[\u4e00-\u9fff]',block))<15:continue
         for marker in re.finditer(r'[（(\[［【]\s*(3[6-9]|4[0-5])\s*[)）\]］】]',block):
-            records[int(marker[1])].append({'answer':m[1] or m[2],'page':raw[:m.end()+marker.start()].count('\f')+1,'method':'explicit-translated-paragraph-marker'})
+            records[int(marker[1])].append({'answer':label,'page':raw[:m.end()+marker.start()].count('\f')+1,'method':'explicit-translated-paragraph-marker'})
     # Several independently marked paragraphs establish this book's layout.
     if len(records)<3 or len({v['answer'] for vs in records.values() for v in vs})<3:return {}
     return {n:vs[0] for n,vs in records.items() if len({v['answer'] for v in vs})==1}
@@ -191,7 +209,7 @@ def direct_answer_headers(pages):
         for m in re.finditer(r'(?m)^[ \t]*(\d{1,2})(?:[ \t]*[.．、][ \t]*|[ \t]+)([A-P01])[ \t]*[)）][ \t]*([^\r\n]*)',page):
             n=int(m[1]);letter=m[2];tail=m[3]
             if not 1<=n<=55:continue
-            if 26<=n<=35:letter={'0':'O','1':'I'}.get(letter,letter)
+            if 26<=n<=45:letter={'0':'O','1':'I'}.get(letter,letter)
             if letter not in ('ABCD' if n<=25 or n>=46 else 'ABCDEFGHIJKLMNO' if n<=35 else 'ABCDEFGHIJKLMNOP'):continue
             # A reprinted set of choices is not a reference key.
             block=page[m.end():m.end()+200]
@@ -350,7 +368,15 @@ def normalize_group(g):
         for q in g['questions']:q['choices']={p['label']:'段落'+p['label'] for p in g['paragraphs']}
     if g['kind']=='cloze':
         for p in g['paragraphs']:
-            value=re.sub(r'[_＿]+',' ',p['text'])
+            raw=p['text']
+            markers=list(re.finditer(r'(?:[_＿]{2,}\s*[23]?[0-9OGB]?\s*[_＿]{2,}|\[[23][0-9OGB]\])',raw))
+            def number(m):
+                digits=re.sub('[^0-9OGB]','',m[0]).translate(str.maketrans({'O':'0','G':'6','B':'8'}))
+                return int(digits) if digits.isdigit() else None
+            values=[number(m) for m in markers]
+            if len(markers)==10 and sum(v==26+i for i,v in enumerate(values))>=8 and (values==list(range(26,36)) or len(set(values))<10 and all(re.match(r'[_＿]{2,}',m[0]) for m in markers)):
+                for i,m in reversed(list(enumerate(markers))):raw=raw[:m.start()]+'['+str(26+i)+']'+raw[m.end():]
+            value=re.sub(r'[_＿]+',' ',raw)
             for n in range(26,36):
                 if '['+str(n)+']' not in value:value=re.sub(r'(?<![\d\[])'+str(n)+r'(?![\d\]])',' ['+str(n)+'] ',value)
             p['text']=re.sub(r' +',' ',value).strip()
@@ -403,6 +429,7 @@ def core_issues(g):
     if kind=='matching' and any(not matching_paragraph_ok(p) for p in g['paragraphs']):errors.append('paragraph-source')
     if kind=='matching' and len({p['label'] for p in g['paragraphs']})!=len(g['paragraphs']):errors.append('duplicate-paragraph')
     if kind=='cloze' and any(sum(p['text'].count('['+str(n)+']') for p in g['paragraphs'])!=1 for n in range(26,36)):errors.append('blank-boundary')
+    if kind=='cloze' and [int(n) for p in g['paragraphs'] for n in re.findall(r'\[(2[6-9]|3[0-5])\]',p['text'])]!=list(range(26,36)):errors.append('blank-order')
     if kind=='cloze' and len({tuple(sorted(q['choices'].items())) for q in qs})>1:errors.append('different-word-banks')
     if kind=='cloze' and len({q.get('answer') for q in qs})!=10:errors.append('duplicate-cloze-answer')
     return sorted(set(errors))
@@ -513,9 +540,17 @@ def build(root,inventory,cache,out,corrections=None):
                 numbers=sorted({q['number'] for g in gs for q in g['questions']})
                 base['questions']=[copy.deepcopy(max([q for g in gs for q in g['questions'] if q['number']==n],key=lambda q:(question_text_ok(base['kind'],q),-q.get('_textPriority',4),fluency({'paragraphs':[],'questions':[q]})))) for n in numbers]
                 if base['kind']=='cloze' and base['questions']:
-                    banks=[q for g in gs for q in g['questions']]
-                    best=max(banks,key=lambda q:(question_text_ok('cloze',q),-q.get('_textPriority',4),fluency({'paragraphs':[],'questions':[q]})))['choices']
-                    for q in base['questions']:q['choices']=copy.deepcopy(best)
+                    banks=[q for g in gs for q in g['questions']];bank={}
+                    for letter in 'ABCDEFGHIJKLMNO':
+                        candidates=[q for q in banks if letter in q['choices']]
+                        if candidates:
+                            q=max(candidates,key=lambda q:(bool(re.fullmatch(r"[A-Za-z]{2,}(?:['’-][A-Za-z]+)*",q['choices'][letter].strip())),q['choices'][letter].lower() in lexicon,-q.get('_textPriority',4)))
+                            bank[letter]=q['choices'][letter]
+                    for q in base['questions']:q['choices']=copy.deepcopy(bank)
+                    def body_rank(g):
+                        text=' '.join(p['text'] for p in g['paragraphs']);counts=[text.count('['+str(n)+']') for n in range(26,36)]
+                        return ([int(n) for n in re.findall(r'\[(2[6-9]|3[0-5])\]',text)]==list(range(26,36)),'\ufffd' not in text and not re.search('[\u4e00-\u9fff]{4,}',text),sum(c==1 for c in counts),fluency(g),-g.get('_textPriority',4))
+                    base['paragraphs']=copy.deepcopy(max(gs,key=body_rank)['paragraphs'])
                 if base['kind']=='matching':
                     paragraphs=collections.defaultdict(list)
                     for g in gs:
