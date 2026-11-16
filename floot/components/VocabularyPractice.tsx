@@ -1,3 +1,4 @@
+import {XiaoQian} from './XiaoQian';
 import {getWordContext,type WordContext} from "../endpoints/word-context_GET.schema";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, RotateCcw, Volume2, ArrowRight, Pause, Play } from "lucide-react";
@@ -82,7 +83,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, 
     {error && <p className={styles.error} role="alert">{error} 本次操作未确认保存。请检查当前词卡后重试，切勿直接当作完成。</p>}
     <p className={styles.notice} role="status" aria-live="polite">{disabled ? "正在保存…" : onSaveLocal&&saving ? "同步中" : notice}</p>
     {(!session || finished) && <div className={styles.setup}>
-      {finished ? <><Check className={styles.finishIcon} size={32}/><h3>这一轮完成了</h3><p>{session.total} 个词 · 待加强 {session.deferred.length} 个</p></> : <p className={styles.roundLabel}>每组 {limit} 词</p>}
+      {finished ? <>{state.preferences?.showCharacter!==false&&<XiaoQian size={80}/>}<h3>这一轮完成了</h3><p>{session.total} 个词 · 待加强 {session.deferred.length} 个</p></> : <p className={styles.roundLabel}>每组 {limit} 词</p>}
       <div className={styles.actions}><Button size="lg" disabled={disabled||preview.total===0} onClick={()=>void start()}>开始{finished?"下一轮":"学习"}</Button>{finished&&<Button variant="outline" onClick={onNext}>去练习 <ArrowRight size={18}/></Button>}</div>
       {!preview.total && <p>到期词已复习完，暂时没有新词。休息一下或继续阅读，记住的词会在到期后回来。</p>}
     </div>}

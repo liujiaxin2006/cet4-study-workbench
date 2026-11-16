@@ -2,7 +2,7 @@ export const learningPlan={
  dateKey(now=new Date()){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);},
  daysUntil(target:string,now=new Date()) {const today=this.dateKey(now);if(!/^20\d{2}-\d{2}-\d{2}$/.test(target)||Number.isNaN(Date.parse(target)))return 0;return Math.max(0,Math.round((Date.parse(target+'T00:00:00+08:00')-Date.parse(today+'T00:00:00+08:00'))/86400000));},
  tasks(minutes=60,focus='auto',date?:string){
-  const total=[30,60,90].includes(minutes)?minutes:60;
+  const total=[15,30,60,90].includes(minutes)?minutes:60;
   const allocation={vocabulary:Math.round(total*.2),reading:Math.round(total*.3),listening:Math.round(total*.3),writing:0};
   allocation.writing=total-allocation.vocabulary-allocation.reading-allocation.listening;
   if(['reading','listening','writing'].includes(focus)){const key=focus as 'reading'|'listening'|'writing';const donor=key==='reading'?'listening':'reading';const extra=Math.min(8,Math.max(0,allocation[donor]-5));allocation[key]+=extra;allocation[donor]-=extra;}

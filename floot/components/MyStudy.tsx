@@ -1,3 +1,4 @@
+import {StudyFeedback} from './StudyFeedback';
 import {useState} from 'react';import {Link} from 'react-router-dom';import {ArrowLeft,ChevronRight,Clock3,Settings,BookOpen,RotateCcw,LogOut,LayoutDashboard,UserRound} from 'lucide-react';
 import {useAuth} from '../helpers/useAuth';import type {StudyState} from '../endpoints/study-progress_GET.schema';import type {PracticeCatalog} from '../endpoints/practice-catalog_GET.schema';import type {useStudyTimer} from '../helpers/useStudyTimer';import {wordBank} from '../helpers/wordBank';import {Button} from './Button';import {StudySettings} from './StudySettings';import styles from '../pages/_index.module.css';
 export function MyStudy({state,timer,catalog,onSave,saving,onReview,onPractice,onWords}:{state:StudyState;timer:ReturnType<typeof useStudyTimer>;catalog?:PracticeCatalog;onSave:(s:StudyState)=>Promise<void>;saving:boolean;onReview:()=>void;onPractice:(paperId:string,groupId:string)=>void;onWords:()=>void}){
@@ -9,5 +10,5 @@ export function MyStudy({state,timer,catalog,onSave,saving,onReview,onPractice,o
  return <><div className={styles.profile}><div className={styles.avatar}><UserRound size={28}/></div><div><h1>{user?.displayName||'我的账号'}</h1><p>{user?.email}</p></div></div><section className={styles.profileStats}><div><strong>{Math.floor(timer.todaySeconds/60)}</strong><span>今日学习 / 分钟</span></div><div><strong>{words.length}</strong><span>已学单词</span></div><div><strong>{records.length}</strong><span>练习记录</span></div></section><section className={styles.surface}>
  {row('学习时间',Clock3,()=>setView('time'),Math.floor(timer.totalSeconds/60)+'分钟')}{row('学习记录',BookOpen,()=>setView('history'))}{row('学过的单词',BookOpen,()=>setView('words'),words.length+'个')}{row('错题与复习',RotateCcw,onReview)}{row('学习设置',Settings,()=>setView('settings'))}
  {user?.role==='admin'&&<Link className={styles.adminEntry} to="/admin"><LayoutDashboard size={19}/>管理后台<ChevronRight size={17}/></Link>}
- </section><Button className={styles.logout} variant="ghost" onClick={()=>void logout()}><LogOut size={17}/>退出登录</Button>{timer.error&&<p role="alert" className={styles.error}>学习时间暂未同步，请稍后重新打开。</p>}</>;
+ </section><StudyFeedback/><Button className={styles.logout} variant="ghost" onClick={()=>void logout()}><LogOut size={17}/>退出登录</Button>{timer.error&&<p role="alert" className={styles.error}>学习时间暂未同步，请稍后重新打开。</p>}</>;
 }

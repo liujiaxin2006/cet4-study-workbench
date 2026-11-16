@@ -9,6 +9,8 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
+export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
+
 export type Json = JsonValue;
 
 export type JsonArray = JsonValue[];
@@ -67,6 +69,11 @@ export interface CetReviewPapers {
   updatedAt: Generated<Timestamp>;
 }
 
+export interface LearningQualityMeta {
+  id: string;
+  startedAt: Generated<Timestamp>;
+}
+
 export interface LoginAttempts {
   attemptedAt: Generated<Timestamp | null>;
   email: string;
@@ -74,11 +81,41 @@ export interface LoginAttempts {
   success: Generated<boolean | null>;
 }
 
+export interface PracticeSubmissions {
+  assisted: Generated<boolean>;
+  correct: number;
+  groupId: string;
+  id: Generated<Int8>;
+  isFirst: boolean;
+  kind: string;
+  paperId: string;
+  revision: number;
+  submittedAt: Generated<Timestamp>;
+  total: number;
+  uncertain: number;
+  userId: number;
+}
+
 export interface Sessions {
   createdAt: Generated<Timestamp | null>;
   expiresAt: Timestamp;
   id: string;
   lastAccessed: Generated<Timestamp | null>;
+  userId: number;
+}
+
+export interface StudyFeedback {
+  adminNote: Generated<string>;
+  category: string;
+  createdAt: Generated<Timestamp>;
+  groupId: string | null;
+  id: string;
+  message: string;
+  paperId: string | null;
+  questionNumber: number | null;
+  revision: Generated<number>;
+  status: Generated<string>;
+  updatedAt: Generated<Timestamp>;
   userId: number;
 }
 
@@ -142,8 +179,11 @@ export interface DB {
   cetPracticeReviews: CetPracticeReviews;
   cetReviewAttempts: CetReviewAttempts;
   cetReviewPapers: CetReviewPapers;
+  learningQualityMeta: LearningQualityMeta;
   loginAttempts: LoginAttempts;
+  practiceSubmissions: PracticeSubmissions;
   sessions: Sessions;
+  studyFeedback: StudyFeedback;
   studyProgress: StudyProgress;
   studyUsageClocks: StudyUsageClocks;
   studyUsageMeta: StudyUsageMeta;
