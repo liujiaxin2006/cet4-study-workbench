@@ -1,3 +1,5 @@
+import {legacyRetiredWords} from "./wordBankLegacy";
+import {wordMeaningCorrections} from "./wordMeaningCorrections";
 import {paperFrequencyWords} from "./wordBankFrequencies";
 import { supplementaryWords } from "./wordBankSupplement";
 import { corpusRankedWords } from "./wordBankCorpus";
@@ -564,12 +566,13 @@ const starterWordBank = [
   }
 ];
 
-const existingWords = [...starterWordBank, ...supplementaryWords, ...officialStarterWords, ...corpusRankedWords] as Array<{
+const existingWords = [...starterWordBank, ...supplementaryWords, ...officialStarterWords, ...corpusRankedWords, ...legacyRetiredWords] as Array<{
   word: string; phonetic?: string; meaning: string; collocation?: string;
-  example?: string; translation?: string; note?: string; sourceRank?: number; cetFrequency?:number;materialCount?:number;examCount?:number;
+  example?: string; translation?: string; note?: string; sourceRank?: number; cetFrequency?:number;materialCount?:number;examCount?:number;forms?:string[];readingRank?:number;sourceType?:"reading"|"supplement";
 }>;
 
 
 const existingByWord=new Map(existingWords.map(w=>[w.word,w]));
 const frequencySet=new Set(paperFrequencyWords.map(w=>w.word));
-export const wordBank:typeof existingWords=[...paperFrequencyWords.map(w=>({...existingByWord.get(w.word),...w,meaning:existingByWord.get(w.word)?.meaning||w.meaning,note:(existingByWord.get(w.word)?.note||'')+' '+w.note})),...existingWords.filter(w=>!frequencySet.has(w.word))];
+export const wordBank:typeof existingWords=[...paperFrequencyWords.map(w=>({...existingByWord.get(w.word),...w,...wordMeaningCorrections[w.word],meaning:wordMeaningCorrections[w.word]?.meaning||existingByWord.get(w.word)?.meaning||w.meaning,sourceType:"reading" as const,sourceRank:undefined,note:[wordMeaningCorrections[w.word]?.note,w.note].filter(Boolean).join(' ')})),...existingWords.filter(w=>!frequencySet.has(w.word)).map(w=>({...w,...wordMeaningCorrections[w.word],sourceType:"supplement" as const,note:[wordMeaningCorrections[w.word]?.note,w.note].filter(Boolean).join(' ')}))];
+export const readingWordBank=wordBank.filter(w=>w.sourceType==="reading");

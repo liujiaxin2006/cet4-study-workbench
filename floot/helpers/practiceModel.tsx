@@ -1,3 +1,4 @@
+import {practiceExplanations} from './practiceExplanations';
 import {cetReview,type ReviewPaper,type ReviewGroup,type ReviewAttempt} from './cetReview';
 import {learningPlan} from './learningPlan';
 export const examKinds={news:{name:'短篇新闻',count:7,weight:7},conversation:{name:'长对话',count:8,weight:8},'listening-passage':{name:'听力篇章',count:10,weight:20},cloze:{name:'选词填空',count:10,weight:5},matching:{name:'长篇匹配',count:10,weight:10},reading:{name:'仔细阅读',count:10,weight:20},writing:{name:'短文写作',count:1,weight:15},translation:{name:'段落翻译',count:1,weight:15}} as const;
@@ -12,7 +13,7 @@ export const practiceModel={
   if(['reading','cloze','matching'].includes(kind)&&!group.paragraphs.length)errors.push('缺少完整原文');
   const expected=kind==='reading'?5:examKinds[kind].count;
   if(group.questions.length!==(kind==='writing'||kind==='translation'?0:expected))errors.push('题量与题组结构不符');
-  if(kind==='writing'||kind==='translation'){if(!group.task)errors.push('缺少写译题目');}
+  if(kind==='writing'||kind==='translation'){if(!group.task)errors.push('缺少写译题目');else if(/参考答案|参考范文|翻译参考译文|answer\s*key/i.test(group.task))errors.push('题干混入参考答案');}
   for(const q of group.questions){
    if(!q.prompt||q.prompt.length>500||/\u0000/.test(q.prompt))errors.push('题干需要校对');
    if(!q.answer||!Object.hasOwn(q.choices,q.answer))errors.push('参考答案尚未确认');
@@ -34,7 +35,7 @@ export const practiceModel={
   return [...new Set([...errors,...(group.issues||[])])];
  },
  ready(paper:PracticePaper,group:PracticeGroup){return paper.status==='published'&&group.publication==='ready'&&this.issues(group).length===0;},
- visible(paper:PracticePaper,group:PracticeGroup,state:PracticeState){const filtered={...paper,sources:[],reviewNotes:[],groups:[group]};return cetReview.publicPaper(filtered,state.attempt).groups[0];},
+ visible(paper:PracticePaper,group:PracticeGroup,state:PracticeState){const filtered={...paper,sources:[],reviewNotes:[],groups:[group]};const visible=cetReview.publicPaper(filtered,state.attempt).groups[0];return {...visible,questions:visible.questions.map(q=>({...q,...(q.answer?{analysis:practiceExplanations(visible,q)}:{})}))};},
  submit(paper:PracticePaper,state:PracticeState,command:Parameters<typeof cetReview.apply>[2]&{assisted?:boolean},confidence:Record<string,boolean>,now=new Date()):PracticeState {
   const attempt=cetReview.apply(paper,state.attempt,command);
   const group=paper.groups.find(g=>g.id===command.groupId)!;

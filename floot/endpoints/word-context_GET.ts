@@ -1,2 +1,31 @@
-import {sql} from 'kysely';import {z} from 'zod';import {db} from '../helpers/db';import {getServerUserSession} from '../helpers/getServerUserSession';import {NotAuthenticatedError} from '../helpers/getSetServerSession';import {cetReply} from '../helpers/cetReply';import {practiceModel,type PracticePaper} from '../helpers/practiceModel';
-export async function handle(request:Request){try{await getServerUserSession(request);const word=z.string().regex(/^[a-z]{2,30}$/).parse(new URL(request.url).searchParams.get('word'));const rows=await sql<{payload:PracticePaper}>`SELECT payload FROM cet_review_papers WHERE payload->>'status'='published' ORDER BY id DESC LIMIT 30`.execute(db);const pattern=new RegExp('\\b'+word+'(?:s|es|ed|ing)?\\b','i');const contexts=[];for(const row of rows.rows)for(const group of row.payload.groups)if(practiceModel.ready(row.payload,group))for(const p of group.paragraphs){for(const sentence of p.text.match(/[^.!?]+[.!?]?/g)||[])if(pattern.test(sentence)){contexts.push({paper:row.payload.title,group:group.title,text:sentence.trim().slice(0,900)});if(contexts.length===3)return cetReply({contexts},{headers:{'Cache-Control':'no-store'}});}}return cetReply({contexts},{headers:{'Cache-Control':'no-store'}});}catch(e){return cetReply({error:e instanceof NotAuthenticatedError?'请先登录。':'读取语境失败，请重试。'},{status:e instanceof NotAuthenticatedError?401:e instanceof z.ZodError?400:500});}}
+import {sql} from 'kysely';
+import {z} from 'zod';
+import {db} from '../helpers/db';
+import {getServerUserSession} from '../helpers/getServerUserSession';
+import {NotAuthenticatedError} from '../helpers/getSetServerSession';
+import {cetReply} from '../helpers/cetReply';
+import {practiceModel,type PracticePaper} from '../helpers/practiceModel';
+import {wordBank} from '../helpers/wordBank';
+const cards=new Map(wordBank.map(w=>[w.word,w]));
+export async function handle(request:Request){try{
+ await getServerUserSession(request);
+ const word=z.string().regex(/^[a-z]{2,30}$/).parse(new URL(request.url).searchParams.get('word'));
+ const card=cards.get(word);if(!card)return cetReply({error:'词库中没有这个词。'},{status:404});
+ const forms=[...new Set([word,...(card.forms||[])])].filter(f=>/^[a-z]+(?:'[a-z]+)?$/.test(f));
+ const pattern=new RegExp('\\b(?:'+forms.join('|')+')\\b','i');
+ // Search every published package, not just the newest thirty. Return only
+ // published source paragraphs; never search answers, references or commentary.
+ const rows=await sql<{payload:PracticePaper}>`SELECT payload FROM cet_review_papers WHERE payload->>'status'='published' ORDER BY id DESC`.execute(db);
+ const contexts=[];const seen=new Set<string>();
+ for(const {payload:paper} of rows.rows)for(const group of paper.groups){
+  if(!['reading','matching','cloze'].includes(group.kind)||!practiceModel.ready(paper,group))continue;
+  for(const paragraph of group.paragraphs){
+   const text=paragraph.text,match=pattern.exec(text);if(!match)continue;
+   const fingerprint=text.toLowerCase().replace(/[^a-z]/g,'');if(seen.has(fingerprint))continue;seen.add(fingerprint);
+   const start=Math.max(0,match.index-220),end=Math.min(text.length,match.index+match[0].length+420);
+   contexts.push({paper:paper.title,group:group.title,paperId:paper.id,groupId:group.id,paragraph:paragraph.label,matchedForm:match[0],text:(start?'…':'')+text.slice(start,end)+(end<text.length?'…':'')});
+   if(contexts.length===3)return cetReply({contexts});
+  }
+ }
+ return cetReply({contexts});
+ }catch(e){return cetReply({error:e instanceof NotAuthenticatedError?'请先登录。':'读取语境失败，请重试。'},{status:e instanceof NotAuthenticatedError?401:e instanceof z.ZodError?400:500});}}

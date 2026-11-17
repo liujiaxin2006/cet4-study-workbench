@@ -1,0 +1,10 @@
+import {practiceExplanations} from './practiceExplanations';
+import type {ReviewGroup} from './cetReview';
+const base:ReviewGroup={id:'x',kind:'matching',title:'test',sourcePages:[],paragraphs:[{label:'A',text:'The project works only for adults who volunteer.'},{label:'B',text:'Children received different support.'}],questions:[],note:''};
+describe('source-grounded explanations',()=>{
+ it('quotes the actual matching paragraph without changing the answer',()=>{const a=practiceExplanations(base,{number:36,prompt:'The project involved adult volunteers.',choices:{A:'A',B:'B'},answer:'A'});expect(a?.paragraph).toBe('A');expect(a?.evidence).toBe(base.paragraphs[0].text);});
+ it('does not generate an explanation without a released answer',()=>{expect(practiceExplanations(base,{number:36,prompt:'test',choices:{A:'A'}})).toBeUndefined();});
+ it('keeps source commentary and adds the source cloze sentence',()=>{const g={...base,kind:'cloze',paragraphs:[{label:'1',text:'We waited. The result was [26] useful. Another sentence.'}]};const a=practiceExplanations(g,{number:26,prompt:'26',choices:{A:'particularly'},answer:'A',analysis:{kind:'checked',evidence:'',explanation:'Checked explanation',action:'Review'}});expect(a?.evidence).toBe('The result was [26] useful.');expect(a?.explanation).toBe('Checked explanation');});
+ it('does not manufacture a reading citation from a plausible answer',()=>{const a=practiceExplanations({...base,kind:'reading'},{number:46,prompt:'test',choices:{A:'adult volunteers'},answer:'A',analysis:{kind:'reading',evidence:'',explanation:'Only the answer is known.',action:'Review'}});expect(a?.evidence).toBe('');});
+ it('uses an exact source phrase explicitly present in the reference locator',()=>{const text='The project works only for adults who volunteer.';const a=practiceExplanations({...base,kind:'reading'},{number:46,prompt:'test',choices:{A:'Adults'},answer:'A',analysis:{kind:'reference',evidence:'',explanation:'定位：'+text+' 详解：the claim has limits.',action:'Review'}});expect(a?.evidence).toBe(text);});
+});

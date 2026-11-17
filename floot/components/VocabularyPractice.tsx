@@ -11,12 +11,12 @@ import styles from "./VocabularyPractice.module.css";
 
 const cardsByWord=new Map(wordBank.map(w=>[w.word,w]));
 
-type Props = { state: StudyState; today: string; saving: boolean; onSave: (state: StudyState) => Promise<void>; onSaveLocal?: (state: StudyState) => void; onNext: () => void };
-export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, onNext }: Props) {
+type Props = { state: StudyState; today: string; saving: boolean; onSave: (state: StudyState) => Promise<void>; onSaveLocal?: (state: StudyState) => void; onNext: () => void; onPractice?: (paperId:string,groupId:string)=>void };
+export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, onNext, onPractice }: Props) {
   const [revealed, setRevealed] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const limit=state.preferences?.wordCount||10;
-  const cards=wordBank;
+  const cards=useMemo(()=>wordBank.filter(w=>w.sourceType==="reading"||!!state.words[w.word]),[state.words]);
   const [paused, setPaused] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -79,7 +79,7 @@ export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, 
     window.addEventListener("keydown", handle); return () => window.removeEventListener("keydown", handle);
   });
   return <section ref={panel} className={styles.panel} aria-label="词汇主动回忆" tabIndex={0}>
-    <div className={styles.heading}><div><h2>背单词</h2></div><span className={styles.badge}>待复习 {due} · 新词 {fresh}</span></div>
+    <div className={styles.heading}><div><h2>真题阅读精选1000词</h2></div><span className={styles.badge}>待复习 {due} · 新词 {fresh}</span></div>
     {error && <p className={styles.error} role="alert">{error} 本次操作未确认保存。请检查当前词卡后重试，切勿直接当作完成。</p>}
     <p className={styles.notice} role="status" aria-live="polite">{disabled ? "正在保存…" : onSaveLocal&&saving ? "同步中" : notice}</p>
     {(!session || finished) && <div className={styles.setup}>
@@ -91,15 +91,15 @@ export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, 
       <div className={styles.row}><span>本轮已处理 {session.total-session.queue.length} / {session.total} · 待练 {session.queue.length}</span><Button size="sm" variant="ghost" disabled={disabled} onClick={() => setPaused(true)}><Pause size={16}/>暂停</Button></div>
       <div className={styles.progress} role="progressbar" aria-label="本轮进度" aria-valuemin={0} aria-valuemax={session.total} aria-valuenow={session.total-session.queue.length}><i style={{width: ((session.total-session.queue.length)/session.total*100)+"%"}}/></div>
       <div className={styles.card}>
-        <span className={styles.badge}>{session.missed.includes(current.word) ? "再次回忆" : state.words[current.word] ? "复习词" : "新词"}</span>
+        <span className={styles.badge}>{current.sourceType==="reading"?"真题阅读词":"历史保留词"} · {session.missed.includes(current.word) ? "再次回忆" : state.words[current.word] ? "复习词" : "新词"}</span>
         <h3>{current.word}</h3><div className={styles.pronunciation}><span>{current.phonetic}</span><Button variant="ghost" size="sm" aria-label={"朗读 "+current.word} onClick={() => speak(current.word)}><Volume2 size={18}/>听发音</Button></div>
         {!revealed ? <div className={styles.prompt}><strong>还记得它的意思吗？</strong></div> : <div className={styles.answer}>
-          <strong>{current.meaning}</strong>
+          <strong>{current.meaning}</strong>{current.readingRank&&<p className={styles.note}>阅读材料中出现 {current.cetFrequency} 次 · 覆盖 {current.examCount} 个场次</p>}
           {current.collocation && <p>常用搭配 · {current.collocation}</p>}
           {current.example ? <><p className={styles.example}>{current.example}</p><div className={styles.actions}><Button variant="ghost" size="sm" onClick={() => speak(current.example!)}><Volume2 size={16}/>听例句</Button>{current.translation && <Button variant="ghost" size="sm" onClick={() => setShowTranslation(v => !v)}>{showTranslation ? "隐藏中文" : "查看例句中文"}</Button>}</div>{showTranslation && current.translation && <p>{current.translation}</p>}</> : null}
 
           <Button variant="outline" size="sm" disabled={contextBusy} onClick={async()=>{setContextBusy(true);try{const requested=current.word;const result=await getWordContext(requested);if(currentWordRef.current===requested)setContexts(result);}catch(e){setError(e instanceof Error?e.message:"语境读取失败");}finally{setContextBusy(false);}}}>{contextBusy?"读取中…":"查看已发布真题语境"}</Button>
-          {contexts&&<div>{contexts.contexts.length?contexts.contexts.map((c,i)=><p className={styles.example} key={i}>{c.text}<small className={styles.note}>{c.paper} · {c.group}</small></p>):<p className={styles.note}>已发布题组中暂未找到匹配语境；待相关材料校对发布后补充。</p>}</div>}
+          {contexts&&<div>{contexts.contexts.length?contexts.contexts.map((c,i)=><p className={styles.example} key={i}>{c.text}<small className={styles.note}>{c.paper} · {c.group}</small>{onPractice&&c.paperId&&c.groupId&&<Button size="sm" variant="link" onClick={()=>onPractice(c.paperId!,c.groupId!)}>打开这篇真题</Button>}</p>):<p className={styles.note}>已发布题组中暂未找到可展示的匹配语境。</p>}</div>}
         </div>}
       </div>
       <div className={styles.grading}>
