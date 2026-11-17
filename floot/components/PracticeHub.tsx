@@ -3,7 +3,7 @@ type Selection={paperId:string;groupId:string};
 export function PracticeHub({review=false,initialSelection,onSelectionChange}:{review?:boolean;initialSelection?:Selection;onSelectionChange?:(s:Selection|undefined)=>void}){
  const query=usePracticeCatalog();const [mode,setMode]=useState<'paper'|'kind'>('kind'),[year,setYear]=useState(''),[paperId,setPaperId]=useState(''),[kind,setKind]=useState(''),[selected,setSelected]=useState<Selection|undefined>(initialSelection);
  useEffect(()=>{setSelected(initialSelection);},[initialSelection?.paperId,initialSelection?.groupId]);
- useEffect(()=>{window.scrollTo({top:0,behavior:'auto'});},[selected,paperId,kind,mode]);
+ useEffect(()=>{document.querySelector('[data-study-scroll]')?.scrollTo({top:0,behavior:'auto'});},[selected,paperId,kind,mode]);
  const data=query.data;const years=[...new Set(data?.papers.map(p=>p.exam.slice(0,4))||[])].sort().reverse();const chosenYear=year;
  function choose(s:Selection|undefined){setSelected(s);onSelectionChange?.(s);}
  if(selected)return <PracticeSession key={selected.paperId+selected.groupId} {...selected} onBack={()=>choose(undefined)}/>;

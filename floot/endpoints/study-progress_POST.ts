@@ -9,6 +9,7 @@ export async function handle(request: Request) {
   try {
     const { user } = await getServerUserSession(request);
     const input = schema.parse(superjson.parse(await request.text()));
+    if(input.clientVersion!==2){const existing=await db.selectFrom('studyProgress').select('state').where('userId','=',user.id).executeTakeFirst();if((existing?.state as any)?.vocabularyDaily)return new Response(superjson.stringify({error:'背词计划已更新，请刷新页面后再保存。'}),{status:409});}
     const now = new Date();
     const state = input.state as Json;
     if (input.revision === 0) {

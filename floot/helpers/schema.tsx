@@ -23,9 +23,17 @@ export type JsonPrimitive = boolean | number | string | null;
 
 export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
+export type RecoveryRequestStatus = "completed" | "declined" | "issued" | "pending";
+
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type UserRole = "admin" | "user";
+
+export interface AuthActionLimits {
+  attempts: Generated<number>;
+  bucket: string;
+  windowStart: Timestamp;
+}
 
 export interface CetCorpusImports {
   createdAt: Generated<Timestamp>;
@@ -79,6 +87,26 @@ export interface LoginAttempts {
   email: string;
   id: Generated<number>;
   success: Generated<boolean | null>;
+}
+
+export interface PasswordRecoveryRequests {
+  createdAt: Generated<Timestamp>;
+  email: string;
+  handledAt: Timestamp | null;
+  handledBy: number | null;
+  id: string;
+  status: Generated<RecoveryRequestStatus>;
+  userId: number | null;
+}
+
+export interface PasswordRecoveryTokens {
+  createdAt: Generated<Timestamp>;
+  createdBy: number;
+  expiresAt: Timestamp;
+  requestId: string;
+  tokenHash: string;
+  usedAt: Timestamp | null;
+  userId: number;
 }
 
 export interface PracticeSubmissions {
@@ -174,6 +202,7 @@ export interface Users {
 }
 
 export interface DB {
+  authActionLimits: AuthActionLimits;
   cetCorpusImports: CetCorpusImports;
   cetPracticeAttempts: CetPracticeAttempts;
   cetPracticeReviews: CetPracticeReviews;
@@ -181,6 +210,8 @@ export interface DB {
   cetReviewPapers: CetReviewPapers;
   learningQualityMeta: LearningQualityMeta;
   loginAttempts: LoginAttempts;
+  passwordRecoveryRequests: PasswordRecoveryRequests;
+  passwordRecoveryTokens: PasswordRecoveryTokens;
   practiceSubmissions: PracticeSubmissions;
   sessions: Sessions;
   studyFeedback: StudyFeedback;
@@ -196,6 +227,7 @@ export interface DB {
 
 // Use these for zod schema enums or other purposes, since the kysely enums are just types
 export const UserRoleArrayValues: [UserRole, ...UserRole[]] = ["admin","user"];
+export const RecoveryRequestStatusArrayValues: [RecoveryRequestStatus, ...RecoveryRequestStatus[]] = ["completed","declined","issued","pending"];
 // Table/column names whose snake_case spelling kysely's default CamelCasePlugin
 // cannot recover from the camelCase name used in code (an underscore directly
 // before a digit, e.g. reminder_48h_sent ⇄ reminder48hSent). The db helper's

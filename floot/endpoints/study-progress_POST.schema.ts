@@ -3,6 +3,7 @@ import superjson from "superjson";
 import { studyStateSchema, StudyState } from "./study-progress_GET.schema";
 
 export const schema = z.object({
+  clientVersion:z.literal(2).optional(),
   state: studyStateSchema,
   revision: z.number().int().min(0),
 });
@@ -10,7 +11,7 @@ export type InputType = z.infer<typeof schema>;
 export type OutputType = { revision: number };
 
 export const postStudyProgress = async (body: InputType, init?: RequestInit): Promise<OutputType> => {
-  const validated = schema.parse(body);
+  const validated = schema.parse({...body,clientVersion:2});
   const response = await fetch("/_api/study-progress", {
     method: "POST",
     body: superjson.stringify(validated),

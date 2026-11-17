@@ -1,3 +1,4 @@
+import {AdminRecoveryPanel} from './AdminRecoveryPanel';
 import {useEffect,useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {useQuery} from '@tanstack/react-query';
@@ -14,14 +15,14 @@ import {getAdminLibrary} from '../endpoints/admin-library_GET.schema';
 import {adminFormat} from '../helpers/adminFormat';
 import styles from './AdminWorkspace.module.css';
 export function AdminDashboard({className=''}:{className?:string}){
- const [params,setParams]=useSearchParams();const active=['overview','users','library','learning','feedback'].includes(params.get('tab')||'')?params.get('tab')!:'overview';
+ const [params,setParams]=useSearchParams();const active=['overview','users','library','learning','feedback','recovery'].includes(params.get('tab')||'')?params.get('tab')!:'overview';
  const [days,setDays]=useState<7|30>(7);const [draft,setDraft]=useState('');const [query,setQuery]=useState('');const [page,setPage]=useState(1);const [selected,setSelected]=useState<number|null>(null);const [chartMetric,setChartMetric]=useState<'newUsers'|'activeUsers'>('newUsers');
  const dashboard=useQuery({queryKey:['admin-dashboard',days,query,page],queryFn:()=>getAdminDashboard(days,query,page),enabled:active==='overview'||active==='users',refetchOnWindowFocus:true,staleTime:30000,retry:1});
  const library=useQuery({queryKey:['admin-library'],queryFn:getAdminLibrary,enabled:active==='library',staleTime:30000,retry:1});
  const current=active==='library'?library:dashboard;const data=dashboard.data;const top=data?.modules.find(m=>m.visits>0);const max=Math.max(1,...(data?.trend.map(d=>d[chartMetric])||[]));
  function navigate(tab:string){setParams(tab==='overview'?{}:{tab});setSelected(null);}
  useEffect(()=>{if(selected!==null)document.getElementById('admin-user-detail')?.scrollIntoView({behavior:'smooth',block:'start'});},[selected]);
- if(active==='learning'||active==='feedback')return <AdminWorkspace active={active} onNavigate={navigate}>{active==='learning'?<AdminLearningPanel/>:<AdminFeedbackPanel/>}</AdminWorkspace>;
+ if(active==='learning'||active==='feedback'||active==='recovery')return <AdminWorkspace active={active} onNavigate={navigate}>{active==='recovery'?<AdminRecoveryPanel/>:active==='learning'?<AdminLearningPanel/>:<AdminFeedbackPanel/>}</AdminWorkspace>;
  return <AdminWorkspace active={active} onNavigate={navigate} className={className}><div className={styles.heading}><div><p className={styles.eyebrow}>{active==='overview'?'PRODUCT OVERVIEW':active==='users'?'USER INSIGHTS':'CONTENT OPERATIONS'}</p><h1>{active==='overview'?'看看大家怎样使用 Copilot':active==='users'?'用户与板块使用':'题库与资料管理'}</h1><p>{active==='overview'?'把账号增长、真实访问和学习记录放在一起看。':active==='users'?'按账号查看使用偏好与学习进展，学习汇总不包含管理员。':'区分正式练习、待审真题和原始资料，直接查看题目与答案。'}</p></div><Button variant="outline" size="sm" disabled={current.isFetching} onClick={()=>void current.refetch()}><RefreshCw size={14}/>{current.isFetching?'读取中…':'刷新数据'}</Button></div>
  {active!=='library'&&<div className={styles.periodLine}><div className={styles.segmented} role="group" aria-label="统计时间范围">{([7,30] as const).map(n=><button key={n} type="button" aria-pressed={days===n} onClick={()=>{setDays(n);setPage(1);}}>{n===7?'近7天':'近30天'}</button>)}</div><span>{data?`${data.startDate} — ${data.endDate}`:'北京时间日历范围'}</span></div>}
  {current.isPending&&<section className={styles.card} role="status"><p>正在读取后台数据…</p></section>}

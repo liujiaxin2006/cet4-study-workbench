@@ -5,7 +5,7 @@ import { Check, RotateCcw, Volume2, ArrowRight, Pause, Play } from "lucide-react
 import { Button } from "./Button";
 import {useStudyActivity} from "../helpers/studyActivity";
 import { wordBank } from "../helpers/wordBank";
-import { vocabularyPractice } from "../helpers/vocabularyPractice";
+import { type Recall, vocabularyPractice } from "../helpers/vocabularyPractice";
 import type { StudyState } from "../endpoints/study-progress_GET.schema";
 import styles from "./VocabularyPractice.module.css";
 
@@ -15,7 +15,7 @@ type Props = { state: StudyState; today: string; saving: boolean; onSave: (state
 export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, onNext, onPractice }: Props) {
   const [revealed, setRevealed] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
-  const limit=state.preferences?.wordCount||10;
+  const limit=10;const daily=vocabularyPractice.daily(state,today);const target=state.preferences?.dailyNewWords||20;
   const cards=useMemo(()=>wordBank.filter(w=>w.sourceType==="reading"||!!state.words[w.word]),[state.words]);
   const [paused, setPaused] = useState(false);
   const [notice, setNotice] = useState("");
@@ -45,21 +45,20 @@ export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, 
     catch (e) { setError(e instanceof Error ? e.message : "保存失败，请重试。"); return false; }
     finally { gate.current = false; setBusy(false); }
   }
-  async function start(mode: "normal" | "review" | "weak" = "normal") {
-    let next = vocabularyPractice.start(state, cards, today, limit, Date.now(), mode === "review");
-    if (mode === "weak") { const queue = weak.slice(0, limit).map(w => w.word); next = { ...next, queue, total: queue.length }; }
+  async function start(mode: "normal" | "review" = "normal") {
+    let next = vocabularyPractice.start(state, cards, today, limit, Date.now(), mode === "review",mode === "review");
     if (!next.queue.length) { setNotice("现在没有需要开始的词卡，可以继续阅读训练。"); return; }
     if (await persist({ ...state, vocabularySession: next }, "")) {
       setPaused(false); setRevealed(false); setShowTranslation(false);
     }
   }
-  async function grade(remembered: boolean) {
+  async function grade(remembered: Recall) {
     if (!current || !revealed || disabled) return;
     const next = vocabularyPractice.grade(state, current, remembered);
     const deferred = next.vocabularySession?.deferred.includes(current.word);
     const message = remembered
       ? current.word + " 已记录，下次复习：" + new Date(next.words[current.word].dueAt).toLocaleDateString("zh-CN", { timeZone: "Asia/Shanghai", month: "numeric", day: "numeric" })
-      : deferred ? current.word + " 暂存到易忘词，10 分钟后可再次复习。"
+      : deferred ? current.word + " 暂存到易忘词，明天继续复习。"
       : current.word + " 会在本轮后面再次出现。";
     if (await persist(next, message)) { setRevealed(false); setShowTranslation(false); }
   }
@@ -74,22 +73,22 @@ export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, 
     const handle = (e: KeyboardEvent) => {
       if (!panel.current?.contains(document.activeElement) || e.repeat || disabled || paused || !current) return;
       if (e.key === " " && !revealed) { e.preventDefault(); setRevealed(true); }
-      if (revealed && (e.key === "1" || e.key === "2")) { e.preventDefault(); void grade(e.key === "2"); }
+      if (revealed && ["1","2","3"].includes(e.key)) { e.preventDefault(); void grade(e.key === "1"?"forgotten":e.key === "2"?"hesitant":"independent"); }
     };
     window.addEventListener("keydown", handle); return () => window.removeEventListener("keydown", handle);
   });
   return <section ref={panel} className={styles.panel} aria-label="词汇主动回忆" tabIndex={0}>
-    <div className={styles.heading}><div><h2>真题阅读精选1000词</h2></div><span className={styles.badge}>待复习 {due} · 新词 {fresh}</span></div>
+    <div className={styles.heading}><div><h2>真题阅读精选1000词</h2></div><span className={styles.badge}>今日新词 {daily.newWords.length}/{target} · 已复习 {daily.reviewedWords.length}</span></div>
     {error && <p className={styles.error} role="alert">{error} 本次操作未确认保存。请检查当前词卡后重试，切勿直接当作完成。</p>}
     <p className={styles.notice} role="status" aria-live="polite">{disabled ? "正在保存…" : onSaveLocal&&saving ? "同步中" : notice}</p>
     {(!session || finished) && <div className={styles.setup}>
-      {finished ? <>{state.preferences?.showCharacter!==false&&<XiaoQian size={80}/>}<h3>这一轮完成了</h3><p>{session.total} 个词 · 待加强 {session.deferred.length} 个</p></> : <p className={styles.roundLabel}>每组 {limit} 词</p>}
-      <div className={styles.actions}><Button size="lg" disabled={disabled||preview.total===0} onClick={()=>void start()}>开始{finished?"下一轮":"学习"}</Button>{finished&&<Button variant="outline" onClick={onNext}>去练习 <ArrowRight size={18}/></Button>}</div>
-      {!preview.total && <p>到期词已复习完，暂时没有新词。休息一下或继续阅读，记住的词会在到期后回来。</p>}
+      {finished ? <>{state.preferences?.showCharacter!==false&&<XiaoQian size={80}/>}<h3>这一轮完成了</h3><p>{session.total} 个词 · 待加强 {session.deferred.length} 个</p></> : <p className={styles.roundLabel}>每次最多5个新词，穿插到期复习</p>}
+      <div className={styles.actions}><Button size="lg" disabled={disabled||preview.total===0} onClick={()=>void start()}>{preview.total?"开始学习":"今日计划已完成"}</Button>{due>0&&<Button variant="outline" disabled={disabled} onClick={()=>void start("review")}>继续复习 · {due}词</Button>}{finished&&<Button variant="outline" onClick={onNext}>去练习 <ArrowRight size={18}/></Button>}</div>
+      {!preview.total && <p>本日新词目标或复习配额已完成。可以去真题中检验，或自愿继续复习到期词。</p>}
     </div>}
     {session && !finished && (paused ? <div className={styles.setup}><h3>已暂停，进度已保存</h3><p>还有 {session.queue.length} 个词。回来时会从当前词继续。</p><Button onClick={() => setPaused(false)}><Play size={18}/>继续这一轮</Button></div> : current ? <>
-      <div className={styles.row}><span>本轮已处理 {session.total-session.queue.length} / {session.total} · 待练 {session.queue.length}</span><Button size="sm" variant="ghost" disabled={disabled} onClick={() => setPaused(true)}><Pause size={16}/>暂停</Button></div>
-      <div className={styles.progress} role="progressbar" aria-label="本轮进度" aria-valuemin={0} aria-valuemax={session.total} aria-valuenow={session.total-session.queue.length}><i style={{width: ((session.total-session.queue.length)/session.total*100)+"%"}}/></div>
+      <div className={styles.row}><span>本轮已处理 {Math.max(0,session.total-new Set(session.queue).size)} / {session.total} · 待练 {session.queue.length}</span><Button size="sm" variant="ghost" disabled={disabled} onClick={() => setPaused(true)}><Pause size={16}/>暂停</Button></div>
+      <div className={styles.progress} role="progressbar" aria-label="本轮进度" aria-valuemin={0} aria-valuemax={session.total} aria-valuenow={Math.max(0,session.total-new Set(session.queue).size)}><i style={{width: (Math.max(0,session.total-new Set(session.queue).size)/session.total*100)+"%"}}/></div>
       <div className={styles.card}>
         <span className={styles.badge}>{current.sourceType==="reading"?"真题阅读词":"历史保留词"} · {session.missed.includes(current.word) ? "再次回忆" : state.words[current.word] ? "复习词" : "新词"}</span>
         <h3>{current.word}</h3><div className={styles.pronunciation}><span>{current.phonetic}</span><Button variant="ghost" size="sm" aria-label={"朗读 "+current.word} onClick={() => speak(current.word)}><Volume2 size={18}/>听发音</Button></div>
@@ -102,10 +101,11 @@ export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, 
           {contexts&&<div>{contexts.contexts.length?contexts.contexts.map((c,i)=><p className={styles.example} key={i}>{c.text}<small className={styles.note}>{c.paper} · {c.group}</small>{onPractice&&c.paperId&&c.groupId&&<Button size="sm" variant="link" onClick={()=>onPractice(c.paperId!,c.groupId!)}>打开这篇真题</Button>}</p>):<p className={styles.note}>已发布题组中暂未找到可展示的匹配语境。</p>}</div>}
         </div>}
       </div>
-      <div className={styles.grading}>
+      {revealed&&<span className={styles.ratingLabel}>按看释义前的回忆自评</span>}<div className={styles.grading}>
         {!revealed ? <Button size="lg" disabled={disabled} onClick={() => setRevealed(true)}>查看释义</Button> : <>
-          <Button size="lg" variant="outline" disabled={disabled} onClick={() => void grade(false)}><RotateCcw size={18}/>没记住</Button>
-          <Button size="lg" disabled={disabled} onClick={() => void grade(true)}><Check size={18}/>记住了</Button>
+          <Button size="lg" variant="outline" disabled={disabled} onClick={() => void grade("forgotten")}><RotateCcw size={18}/>没想起</Button>
+          <Button size="lg" variant="outline" disabled={disabled} onClick={() => void grade("hesitant")}>想起但犹豫</Button>
+          <Button size="lg" disabled={disabled} onClick={() => void grade("independent")}><Check size={18}/>独立想起</Button>
         </>}
       </div>
 

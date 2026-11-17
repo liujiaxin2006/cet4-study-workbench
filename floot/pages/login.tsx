@@ -37,6 +37,7 @@ export default function LoginPage() {
           <p className={styles.formIntro}>{mode === "login" ? (adminEntry?"使用管理员账号查看用户、板块统计和题库。":"用你的邮箱和密码继续学习。") : "注册后，手机和电脑登录同一账号即可同步进度。"}</p>
           {authState.type==="authenticated"&&<p className={styles.formIntro}>当前已登录：{authState.user.displayName} · <Link to={target}>继续前往{adminEntry?"后台":"工作台"} →</Link></p>}
           {mode === "login" ? <PasswordLoginForm /> : <PasswordRegisterForm />}
+          {mode === "login" && <p className={styles.switchMode}><Link to="/forgot-password">忘记密码？</Link></p>}
           <p className={styles.switchMode}>{mode === "login" ? "还没有账号？" : "已经注册过？"} <button type="button" onClick={() => setMode(mode === "login" ? "register" : "login")}>{mode === "login" ? "免费注册" : "返回登录"}</button></p>
           {!adminEntry&&<p className={styles.switchMode}><Link to="/login?next=%2Fadmin">管理后台登录 →</Link></p>}
           <p className={styles.dataNote}>账号数据保存在工作台的云端数据库；我们不会读取你的其他网站账号。</p>

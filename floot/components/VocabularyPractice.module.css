@@ -29,7 +29,9 @@
 .details { margin-top:22px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--muted-foreground); line-height:1.7; }
 .details summary { cursor:pointer; padding:8px 0; }
 .finishIcon { color:var(--primary); }
-@media(max-width:520px) { .heading { align-items:flex-start; } .card { min-height:260px; } .prompt,.answer { padding:16px; } .grading { bottom: calc(68px + env(safe-area-inset-bottom)); margin-inline:-4px; padding-inline:4px; } .options button { flex:1; } }
+@media(max-width:520px) { .heading { align-items:flex-start; } .card { min-height:260px; } .prompt,.answer { padding:16px; } .grading { bottom: 0; margin-inline:-4px; padding-inline:4px; } .options button { flex:1; } }
 
 
 .roundLabel{margin:12px 0 24px;color:#867b98;font-size:14px}.notice:empty{display:none}.panel{max-width:760px;margin:auto}.setup{padding-top:18px!important}.heading{margin-bottom:16px!important}.card{min-height:250px}.note{display:none}
+
+.ratingLabel{font-size:12px;color:var(--muted-foreground)}.grading button{white-space:normal;font-size:14px;min-width:0;padding-inline:8px}.heading h2{font-size:22px}

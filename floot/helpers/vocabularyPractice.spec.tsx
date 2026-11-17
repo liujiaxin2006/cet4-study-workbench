@@ -78,16 +78,16 @@ describe("词卡操作流程", () => {
   it("先隐藏答案，翻卡才允许自评，记住后结束", async () => {
     render(<Harness/>);
     expect(screen.queryByText("证据；证明")).toBeNull();
-    expect(screen.queryByRole("button",{name:"记住了"})).toBeNull();
+    expect(screen.queryByRole("button",{name:"独立想起"})).toBeNull();
     fireEvent.click(screen.getByRole("button",{name:"查看释义"}));
     expect(screen.getByText("证据；证明")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button",{name:"记住了"}));
+    fireEvent.click(screen.getByRole("button",{name:"独立想起"}));
     await screen.findByText("这一轮完成了");
   });
   it("保存失败保留答案和当前词，不假装进入下一张", async () => {
     render(<Harness fail/>);
     fireEvent.click(screen.getByRole("button",{name:"查看释义"}));
-    fireEvent.click(screen.getByRole("button",{name:"记住了"}));
+    fireEvent.click(screen.getByRole("button",{name:"独立想起"}));
     await screen.findByRole("alert");
     expect(screen.getByText("evidence")).toBeTruthy();
     expect(screen.getByText("证据；证明")).toBeTruthy();
@@ -96,7 +96,7 @@ describe("词卡操作流程", () => {
   it("只剩一个遗忘词时重现也必须重新翻卡", async () => {
     render(<Harness/>);
     fireEvent.click(screen.getByRole("button",{name:"查看释义"}));
-    fireEvent.click(screen.getByRole("button",{name:"没记住"}));
+    fireEvent.click(screen.getByRole("button",{name:"没想起"}));
     await screen.findByRole("button",{name:"查看释义"});
     expect(screen.queryByText("证据；证明")).toBeNull();
   });
@@ -110,11 +110,17 @@ function FastHarness({fail=false}:{fail?:boolean}){
 describe("instant word transitions with durable background sync",()=>{
  afterEach(cleanup);
  it("advances and permits revealing the next word while the network is still pending",()=>{
-  const view=render(<FastHarness/>);fireEvent.click(view.getByRole("button",{name:"查看释义"}));fireEvent.click(view.getByRole("button",{name:"记住了"}));
-  expect(view.getByText(wordBank[1].word)).toBeTruthy();expect(view.getByRole("button",{name:"查看释义"}).hasAttribute("disabled")).toBeFalse();expect(view.queryByRole("button",{name:"记住了"})).toBeNull();
+  const view=render(<FastHarness/>);fireEvent.click(view.getByRole("button",{name:"查看释义"}));fireEvent.click(view.getByRole("button",{name:"独立想起"}));
+  expect(view.getByText(wordBank[1].word)).toBeTruthy();expect(view.getByRole("button",{name:"查看释义"}).hasAttribute("disabled")).toBeFalse();expect(view.queryByRole("button",{name:"独立想起"})).toBeNull();
  });
  it("does not move past a word if the local safety copy cannot be written",()=>{
-  const view=render(<FastHarness fail/>);fireEvent.click(view.getByRole("button",{name:"查看释义"}));fireEvent.click(view.getByRole("button",{name:"没记住"}));
+  const view=render(<FastHarness fail/>);fireEvent.click(view.getByRole("button",{name:"查看释义"}));fireEvent.click(view.getByRole("button",{name:"没想起"}));
   expect(view.getByText(wordBank[0].word)).toBeTruthy();
  });
+});
+
+describe('daily word learning boundaries',()=>{
+ it('adds at most five new words per chunk and stops at the daily target',()=>{const s=empty();s.preferences={examDate:'2026-12-12',dailyMinutes:60,focus:'auto',dailyNewWords:10};s.vocabularyDaily={'2026-10-13':{newWords:['a','b','c','d','e','f','g','h','i','j'],reviewedWords:[],independent:10,forgotten:0,hesitant:0,delayedAttempts:0,delayedIndependent:0}};expect(vocabularyPractice.start(s,cards,'2026-10-13',10,now).queue).toEqual([]);});
+ it('counts repeated cards once and preserves the failure limit across restarted rounds',()=>{let s=empty();s.vocabularySession=vocabularyPractice.start(s,[cards[0]],'2026-10-13',10,now);for(let n=0;n<3;n++)s=vocabularyPractice.grade(s,cards[0],'hesitant',now);expect(s.vocabularyDaily?.['2026-10-13'].newWords).toEqual(['alpha']);expect(s.vocabularyDaily?.['2026-10-13'].hesitant).toBe(3);s.vocabularySession=vocabularyPractice.start(s,[cards[0]],'2026-10-13',10,now+60000,true,true);expect(s.vocabularySession.queue).toEqual([]);expect(studyStateSchema.safeParse(s).success).toBeTrue();});
+ it('caps default due work but allows an explicit extra review',()=>{const s=empty();for(const c of cards)s.words[c.word]={repetitions:1,intervalDays:1,dueAt:new Date(now-1000).toISOString(),lastResult:'again'};s.vocabularyDaily={'2026-10-13':{newWords:[],reviewedWords:Array.from({length:20},(_,i)=>'old'+i),independent:20,forgotten:0,hesitant:0,delayedAttempts:0,delayedIndependent:0}};expect(vocabularyPractice.start(s,cards,'2026-10-13',10,now).queue).toEqual([]);expect(vocabularyPractice.start(s,cards,'2026-10-13',10,now,true,true).queue.length).toBe(5);});
 });
