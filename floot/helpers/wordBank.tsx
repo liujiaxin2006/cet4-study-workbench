@@ -573,6 +573,7 @@ const existingWords = [...starterWordBank, ...supplementaryWords, ...officialSta
 
 
 const existingByWord=new Map(existingWords.map(w=>[w.word,w]));
+const curatedPhonetics=new Map(starterWordBank.filter(w=>w.phonetic).map(w=>[w.word,w.phonetic]));
 const frequencySet=new Set(paperFrequencyWords.map(w=>w.word));
-export const wordBank:typeof existingWords=[...paperFrequencyWords.map(w=>({...existingByWord.get(w.word),...w,...wordMeaningCorrections[w.word],meaning:wordMeaningCorrections[w.word]?.meaning||existingByWord.get(w.word)?.meaning||w.meaning,sourceType:"reading" as const,sourceRank:undefined,note:[wordMeaningCorrections[w.word]?.note,w.note].filter(Boolean).join(' ')})),...existingWords.filter(w=>!frequencySet.has(w.word)).map(w=>({...w,...wordMeaningCorrections[w.word],sourceType:"supplement" as const,note:[wordMeaningCorrections[w.word]?.note,w.note].filter(Boolean).join(' ')}))];
+export const wordBank:typeof existingWords=[...paperFrequencyWords.map(w=>({...existingByWord.get(w.word),...w,...wordMeaningCorrections[w.word],meaning:wordMeaningCorrections[w.word]?.meaning||existingByWord.get(w.word)?.meaning||w.meaning,sourceType:"reading" as const,sourceRank:undefined,note:[wordMeaningCorrections[w.word]?.note,w.note].filter(Boolean).join(' ')})),...existingWords.filter(w=>!frequencySet.has(w.word)).map(w=>({...w,...wordMeaningCorrections[w.word],sourceType:"supplement" as const,note:[wordMeaningCorrections[w.word]?.note,w.note].filter(Boolean).join(' ')}))].map(w=>({...w,phonetic:(curatedPhonetics.get(w.word)||w.phonetic||'').replace(/ә/g,'ə').replace(/'/g,'ˈ').replace(/:/g,'ː')}));
 export const readingWordBank=wordBank.filter(w=>w.sourceType==="reading");

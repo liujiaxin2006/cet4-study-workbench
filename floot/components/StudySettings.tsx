@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState} from 'react';import {Checkbox} from './Checkbox';
 import type {StudyState} from '../endpoints/study-progress_GET.schema';
 import {studyStateSchema} from '../endpoints/study-progress_GET.schema';
 import {Button} from './Button';import {Input} from './Input';import styles from '../pages/_index.module.css';
@@ -9,6 +9,6 @@ export function StudySettings({state,onSave,saving}:{state:StudyState;onSave:(s:
  {choices('每日学习目标',[15,30,60,90] as const,prefs.dailyMinutes,v=>setPrefs(p=>({...p,dailyMinutes:v})),['15分钟','30分钟','60分钟','90分钟'])}
  {choices('每日新词目标',[10,20] as const,prefs.dailyNewWords,v=>setPrefs(p=>({...p,dailyNewWords:v})),['10个','20个'])}
  {choices('阅读字号',['standard','large'] as const,prefs.textSize,v=>setPrefs(p=>({...p,textSize:v})),['标准','大字'])}
- <label className={styles.setting}><input type="checkbox" checked={prefs.showCharacter} onChange={e=>setPrefs(p=>({...p,showCharacter:e.target.checked}))}/> 显示书签伙伴小签</label>
+ <label className={styles.toggleSetting}><Checkbox checked={prefs.showCharacter} onChange={e=>setPrefs(p=>({...p,showCharacter:e.target.checked}))}/> 显示书签伙伴小签</label>
  <Button disabled={saving} onClick={async()=>{const next=studyStateSchema.safeParse({...state,preferences:prefs});if(!next.success){setMessage('请填写有效日期，例如2026-12-12。');return;}try{await onSave(next.data);setMessage('已保存');}catch(e){setMessage(e instanceof Error?e.message:'保存失败，请重试。');}}}>{saving?'保存中…':'保存设置'}</Button><p role="status">{message}</p></section>;
 }
