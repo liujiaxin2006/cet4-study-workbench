@@ -1,5 +1,6 @@
 "use client";
-import {useEffect,useState,useRef,type CSSProperties} from 'react';import {Helmet} from 'react-helmet';import {Home,BookOpen,Layers,UserRound,ChevronRight,ArrowUpRight,Bookmark,Clock3,RotateCcw,Pause,Play} from 'lucide-react';
+import {startTransition,useEffect,useState,useRef,type CSSProperties} from 'react';import {Helmet} from 'react-helmet';import {Home,BookOpen,Layers,UserRound,ChevronRight,ArrowUpRight,Bookmark,Clock3,RotateCcw,Pause,Play} from 'lucide-react';
+import {StudyDock} from '../components/StudyDock';
 import {XiaoQian} from '../components/XiaoQian';
 import {studyRecommendations} from '../helpers/studyRecommendations';
 import {Button} from '../components/Button';import {VocabularyPractice} from '../components/VocabularyPractice';import {PracticeHub} from '../components/PracticeHub';import {MyStudy} from '../components/MyStudy';import {LegacyMistakeReview} from '../components/LegacyMistakeReview';
@@ -28,5 +29,5 @@ export default function HomePage(){
  {tab==='practice'&&<><PracticeHub key={review?'review':'practice'} review={review} initialSelection={selection} onSelectionChange={setSelection}/>{review&&<LegacyMistakeReview state={state} onSave={saveAsync} onWords={()=>navigate('words')}/>}</>}
  {tab==='me'&&<MyStudy state={state} timer={timer} catalog={catalog.data} onSave={saveAsync} saving={saving} onReview={openReview} onPractice={open} onWords={()=>navigate('words')}/>}
  {progress.saveError&&<p role="alert" className={styles.error}>{progress.saveError.message} <Button variant="link" onClick={()=>void progress.retrySync().catch(()=>{})}>重试同步</Button>{progress.conflict&&<><Button variant="link" onClick={progress.exportDraft}>导出本机草稿</Button><Button variant="link" onClick={()=>{if(window.confirm("采用云端进度？本机未同步内容会另存为浏览器备份。"))void progress.adoptCloud().catch(()=>{});}}>采用云端进度</Button></>}</p>}</div></div>
- <nav className={styles.mobileDock} aria-label="底部导航"><span className={styles.dockHighlight} style={{transform:`translateX(${navigation.findIndex(n=>n.id===tab)*100}%)`}}/>{navigation.map(({id,label,icon:Icon})=><Button key={id} variant="ghost" aria-current={tab===id?'page':undefined} onClick={()=>navigate(id)}><Icon size={21}/><span>{label}</span></Button>)}</nav></main></StudyActivityContext.Provider>;
+ <StudyDock items={navigation} active={tab} onSelect={id => startTransition(() => navigate(id))}/></main></StudyActivityContext.Provider>;
 }

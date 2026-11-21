@@ -1,0 +1,61 @@
+.dock { display: none; }
+
+@media (max-width: 740px) {
+  .dock {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: relative;
+    z-index: 30;
+    isolation: isolate;
+    flex-shrink: 0;
+    margin: 10px 16px calc(12px + env(safe-area-inset-bottom));
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    background: #fffffff2;
+    box-shadow: 0 5px 18px #2522380c;
+    touch-action: pan-y pinch-zoom;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .highlight {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    inset: 6px auto 6px 6px;
+    width: calc((100% - 12px) / 4);
+    border-radius: 20px;
+    background: var(--secondary);
+    transition: transform 280ms cubic-bezier(.22, .82, .25, 1);
+    will-change: transform;
+  }
+  .highlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid #fff9;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  .dock[data-dragging] .highlight { transition: none; }
+  .dock[data-dragging] .highlight::after {
+    transform: scale(1.05, 1.08);
+    box-shadow: 0 3px 12px #5d4bc42c, inset 0 1px 3px #fff;
+  }
+  .dock > button {
+    flex-direction: column;
+    gap: 3px;
+    height: 59px;
+    border-radius: 20px;
+    color: var(--muted-foreground);
+    font-size: 10px;
+    padding: 7px;
+    background: transparent;
+  }
+  .dock > button:hover { background: transparent; }
+  .dock > button[data-highlighted=true] { color: var(--primary); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .highlight, .highlight::after { transition: none; }
+}
