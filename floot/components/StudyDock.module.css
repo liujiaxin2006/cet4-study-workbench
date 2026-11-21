@@ -15,7 +15,9 @@
     border-radius: 25px;
     background: #fffffff2;
     box-shadow: 0 5px 18px #2522380c;
-    touch-action: pan-y pinch-zoom;
+    /* A gesture starting in the dock must not become browser scrolling. */
+    touch-action: none;
+    -webkit-touch-callout: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }

@@ -4,7 +4,7 @@ import { Button } from './Button';
 import styles from './StudyDock.module.css';
 
 type Item = { id: string; label: string; icon: LucideIcon };
-type Gesture = { pointer: number; x: number; y: number; from: number; width: number; dragging: boolean };
+type Gesture = { pointer: number; captureTarget: HTMLButtonElement; x: number; y: number; from: number; width: number; dragging: boolean };
 
 export function StudyDock({ items, active, onSelect }: {
   items: Item[];
@@ -33,9 +33,12 @@ export function StudyDock({ items, active, onSelect }: {
     suppressClick.current = false;
     const buttons = Array.from(event.currentTarget.querySelectorAll('button'));
     const from = buttons.findIndex(button => button.contains(event.target as Node));
-    const width = buttons[from]?.getBoundingClientRect().width;
-    if (from < 0 || !width) return;
-    gesture.current = { pointer: event.pointerId, x: event.clientX, y: event.clientY, from, width, dragging: false };
+    const captureTarget = buttons[from];
+    const width = captureTarget?.getBoundingClientRect().width;
+    if (!width) return;
+    // Capture on the pressed button from the start so tap activation keeps its target.
+    captureTarget.setPointerCapture(event.pointerId);
+    gesture.current = { pointer: event.pointerId, captureTarget, x: event.clientX, y: event.clientY, from, width, dragging: false };
   }
 
   function position(current: Gesture, x: number) {
@@ -54,7 +57,6 @@ export function StudyDock({ items, active, onSelect }: {
       }
       if (dx < 8) return;
       current.dragging = true;
-      event.currentTarget.setPointerCapture(event.pointerId);
       event.currentTarget.dataset.dragging = 'true';
     }
     const offset = position(current, event.clientX);
@@ -83,8 +85,9 @@ export function StudyDock({ items, active, onSelect }: {
       onPointerUp={event => finish(event)}
       onPointerCancel={event => finish(event, true)}
       onLostPointerCapture={event => {
-        if (event.target === event.currentTarget) finish(event, true);
+        if (event.target === gesture.current?.captureTarget) finish(event, true);
       }}
+      onContextMenu={event => { if (gesture.current) event.preventDefault(); }}
       onClickCapture={event => {
         if (suppressClick.current && event.detail > 0) {
           event.preventDefault();

@@ -10,14 +10,17 @@ function setup() {
   const view = render(<StudyDock items={items} active="首页" onSelect={select} />);
   const dock = view.getByRole('navigation');
   const buttons = view.getAllByRole('button');
-  Object.defineProperty(dock, 'setPointerCapture', { value: () => {} });
-  buttons.forEach(button => spyOn(button, 'getBoundingClientRect').and.returnValue({ width: 80 } as DOMRect));
+  const capture = jasmine.createSpy('capture');
+  buttons.forEach(button => {
+    Object.defineProperty(button, 'setPointerCapture', { value: capture });
+    spyOn(button, 'getBoundingClientRect').and.returnValue({ width: 80 } as DOMRect);
+  });
   function pointer(target: Element, type: string, x: number, y = 10) {
     const event = new window.MouseEvent(type, { bubbles: true, clientX: x, clientY: y });
     Object.defineProperties(event, { pointerId: { value: 1 }, isPrimary: { value: true } });
     fireEvent(target, event);
   }
-  return { dock, buttons, select, pointer };
+  return { dock, buttons, select, pointer, capture };
 }
 
 describe('mobile study dock', () => {
@@ -34,6 +37,23 @@ describe('mobile study dock', () => {
     pointer(dock, 'pointerup', 166);
     fireEvent.click(buttons[0], { detail: 1 });
     expect(select.calls.allArgs()).toEqual([['练习']]);
+  });
+
+  it('holds the last tab during a pause and ignores capture loss from a child icon', async () => {
+    const { dock, buttons, select, pointer, capture } = setup();
+    const icon = buttons[0].querySelector('svg')!;
+    pointer(icon, 'pointerdown', 40);
+    expect(capture).toHaveBeenCalledOnceWith(1);
+    pointer(buttons[0], 'pointermove', 350, 23);
+    pointer(icon, 'lostpointercapture', 350);
+    await new Promise(resolve => setTimeout(resolve, 350));
+    expect(dock.dataset.dragging).toBe('true');
+    expect(dock.style.getPropertyValue('--dock-offset')).toBe('300%');
+    expect(buttons[3].dataset.highlighted).toBe('true');
+    expect(select).not.toHaveBeenCalled();
+    pointer(buttons[0], 'pointerup', 350);
+    fireEvent.click(buttons[0], { detail: 1 });
+    expect(select.calls.allArgs()).toEqual([['我的']]);
   });
 
   it('cancels a gesture and still accepts a later tap or keyboard click', () => {

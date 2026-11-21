@@ -1,6 +1,6 @@
 {
   "source": "Floot project source snapshot",
-  "version": "1795272030037",
+  "version": "1795272340577",
   "exported_on": "2026-11-21",
   "excluded": [
     "component examples",
@@ -101,8 +101,8 @@
     "floot/components/SonnerToaster.tsx": "22237e0f1854fbaf9a67dbfff7f36ff92d156ed4d2c3a7710ec197e8e6609dd4",
     "floot/components/Spinner.module.css": "7e35469ceccc7d2d54a22bfbb2545f2ad0d360ba127841be8c0d77fa992af6f5",
     "floot/components/Spinner.tsx": "0d7cccf02300e844a107ba4df2751a9385c26cc5dd4357b64b5fca4049e05e9f",
-    "floot/components/StudyDock.module.css": "0d45f64e11ea33c3b65cd1ccdb024df2ad80969b6bd038a9244bd4193ee27395",
-    "floot/components/StudyDock.tsx": "78abcbe69e145f08a0fa0ced90846ec9fb082a1b5290e21f21fa924a5c158acc",
+    "floot/components/StudyDock.module.css": "f33b7b1f82026b2476952aa3bb8ca609691c5fad0146c65bf7a94a62d9b7013e",
+    "floot/components/StudyDock.tsx": "41094ec35c2e8cd23c9de9717d0a84d7cee146885ed5167fa360d1745ed7f409",
     "floot/components/StudyFeedback.tsx": "b717e0d390a116a673701aa399dac3c51256bc14921a19ac6f97bbceca4c75d6",
     "floot/components/StudySettings.tsx": "c13742e7e80708e872f8e1000e14f94c9fccd78e7bda9a364f4b5487ab96d566",
     "floot/components/Switch.module.css": "48cad559b4eb6fe56ff1c222eb93a27d01971272707c099c534abcd24af42c8c",
@@ -208,7 +208,7 @@
     "floot/helpers/safeReturnPath.tsx": "71b3476b75c8f6e48f7763e7fc1661c8dac8a855215bc5c68728fcfe1c133a70",
     "floot/helpers/schema.tsx": "568c0d45675f58e497844da41bf54cd90d0a6f8a887d887b19201b1aae49e8eb",
     "floot/helpers/studyActivity.tsx": "88d84cde8d2b90e08cff5b47959569fe26cfd30ec2c71e0c17fc74cd4cde312e",
-    "floot/helpers/studyDock.spec.tsx": "5bc26f1e987e1ace9337efd7e50cf8f5d501b739fd3ad357ad8ada64beaeef89",
+    "floot/helpers/studyDock.spec.tsx": "fb31c0b32329a653815898f78bdeb39f3cb7fa21a2290d8bcf259cb08dba4f13",
     "floot/helpers/studyProgressSync.spec.tsx": "7f83a2a5ea415e3735568658e2079c6452a054787329facd54fa2c57e5f54b6e",
     "floot/helpers/studyProgressSync.tsx": "9ab7016b5fb42ea3490aa5b768e60e961cbab027464084ed823cfef4033de618",
     "floot/helpers/studyRecommendations.spec.tsx": "ad1dff827ca3cce6bf16c8035565b732e32b22b23a6db3c4ac19045ba4ed6352",
@@ -264,12 +264,12 @@
     "floot/static/manifest.json": "30f87af62aa2a01ce48af02c4b42b6cda3efe38bebf650b658ad971d0a765415"
   },
   "deployed_release": {
-    "releaseId": "179527206509189006ce3-c436-46c6-8234-617e448bf9c1",
-    "publishedAt": "2026-11-21T14:41:02.760Z",
-    "sourceDigest": "2dc71fdd67c873ea36a9c1f22eb8b2cdff61b5bc8ded6c6834d7b05d21d9904d",
+    "releaseId": "17952723693097da45527-fffc-436e-9021-72cb89e4facf",
+    "publishedAt": "2026-11-21T14:46:07.085Z",
+    "sourceDigest": "913f740095c1b80f08a0aafc0a61f08d9b27adc1fd4df4c01166639a5472e7ac",
     "sourceFileCount": 342,
     "url": "https://cet4-study-jiaxi.floot.app/",
-    "verification": "Platform typecheck and dock gesture specs passed; local practice UI and dock specs passed.",
+    "verification": "Platform typecheck clean; local and platform dock tests passed, including a 350ms hold at the rightmost tab and correct activation on release. Physical iPhone retest pending.",
     "corpus": {
       "candidateEntries": 62,
       "readyGroups": 387,
