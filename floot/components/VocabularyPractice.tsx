@@ -78,21 +78,21 @@ export function VocabularyPractice({ state, today, saving, onSave, onSaveLocal, 
     window.addEventListener("keydown", handle); return () => window.removeEventListener("keydown", handle);
   });
   return <section ref={panel} className={styles.panel} aria-label="词汇主动回忆" tabIndex={0}>
-    <div className={styles.heading}><div><h2>真题阅读精选1000词</h2></div><span className={styles.badge}>今日新词 {daily.newWords.length}/{target} · 已复习 {daily.reviewedWords.length}</span></div>
+    <div className={styles.heading}><div><h2>背单词</h2></div><span className={styles.badge}>今日新词 {daily.newWords.length}/{target} · 已复习 {daily.reviewedWords.length}</span></div>
     {error && <p className={styles.error} role="alert">{error} 本次操作未确认保存。请检查当前词卡后重试，切勿直接当作完成。</p>}
     <p className={styles.notice} role="status" aria-live="polite">{disabled ? "正在保存…" : onSaveLocal&&saving ? "同步中" : notice}</p>
     {(!session || finished) && <div className={styles.setup}>
-      {finished ? <>{state.preferences?.showCharacter!==false&&<XiaoQian size={80}/>}<h3>这一轮完成了</h3><p>{session.total} 个词 · 待加强 {session.deferred.length} 个</p></> : <p className={styles.roundLabel}>每次最多5个新词，穿插到期复习</p>}
+      {finished ? <>{state.preferences?.showCharacter!==false&&<XiaoQian size={80}/>}<h3>这一轮完成了</h3><p>{session.total} 个词 · 待加强 {session.deferred.length} 个</p></> : <p className={styles.roundLabel}>真题阅读精选 1000 词。每轮最多 5 个新词，穿插到期复习。</p>}
       <div className={styles.actions}><Button size="lg" disabled={disabled||preview.total===0} onClick={()=>void start()}>{preview.total?"开始学习":"今日计划已完成"}</Button>{due>0&&<Button variant="outline" disabled={disabled} onClick={()=>void start("review")}>继续复习 · {due}词</Button>}{finished&&<Button variant="outline" onClick={onNext}>去练习 <ArrowRight size={18}/></Button>}</div>
       {!preview.total && <p>本日新词目标或复习配额已完成。可以去真题中检验，或自愿继续复习到期词。</p>}
     </div>}
     {session && !finished && (paused ? <div className={styles.setup}><h3>已暂停，进度已保存</h3><p>还有 {session.queue.length} 个词。回来时会从当前词继续。</p><Button onClick={() => setPaused(false)}><Play size={18}/>继续这一轮</Button></div> : current ? <>
-      <div className={styles.row}><span>本轮已处理 {Math.max(0,session.total-new Set(session.queue).size)} / {session.total} · 待练 {session.queue.length}</span><Button size="sm" variant="ghost" disabled={disabled} onClick={() => setPaused(true)}><Pause size={16}/>暂停</Button></div>
+      <div className={styles.row}><span>本组 {Math.max(0,session.total-new Set(session.queue).size)} / {session.total} · 待练 {session.queue.length}</span><Button size="sm" variant="ghost" disabled={disabled} onClick={() => setPaused(true)}><Pause size={16}/>暂停</Button></div>
       <div className={styles.progress} role="progressbar" aria-label="本轮进度" aria-valuemin={0} aria-valuemax={session.total} aria-valuenow={Math.max(0,session.total-new Set(session.queue).size)}><i style={{width: (Math.max(0,session.total-new Set(session.queue).size)/session.total*100)+"%"}}/></div>
-      <div className={styles.card}>
+      <div className={`${styles.card} ${revealed ? styles.revealed : ""}`}>
         <span className={styles.badge}>{current.sourceType==="reading"?"真题阅读词":"历史保留词"} · {session.missed.includes(current.word) ? "再次回忆" : state.words[current.word] ? "复习词" : "新词"}</span>
         <h3>{current.word}</h3><div className={styles.pronunciation}><span>{current.phonetic}</span><Button variant="ghost" size="sm" aria-label={"朗读 "+current.word} onClick={() => speak(current.word)}><Volume2 size={18}/>听发音</Button></div>
-        {!revealed ? <div className={styles.prompt}><strong>还记得它的意思吗？</strong></div> : <div className={styles.answer}>
+        {!revealed ? <div className={styles.prompt}>{current.example ? <p lang="en">{current.example}</p> : <strong>还记得它的意思吗？</strong>}</div> : <div className={styles.answer}>
           <strong>{current.meaning}</strong>{current.readingRank&&<p className={styles.note}>阅读材料中出现 {current.cetFrequency} 次 · 覆盖 {current.examCount} 个场次</p>}
           {current.collocation && <p>常用搭配 · {current.collocation}</p>}
           {current.example ? <><p className={styles.example}>{current.example}</p><div className={styles.actions}><Button variant="ghost" size="sm" onClick={() => speak(current.example!)}><Volume2 size={16}/>听例句</Button>{current.translation && <Button variant="ghost" size="sm" onClick={() => setShowTranslation(v => !v)}>{showTranslation ? "隐藏中文" : "查看例句中文"}</Button>}</div>{showTranslation && current.translation && <p>{current.translation}</p>}</> : null}

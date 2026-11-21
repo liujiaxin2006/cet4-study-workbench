@@ -17,3 +17,41 @@
 .completion{display:flex;gap:12px;flex-wrap:wrap;align-items:center;background:#edf4ed;color:#45634b;padding:16px 20px;border-radius:15px;margin-bottom:16px;font-size:13px}.completion>span:last-child{color:#758078;font-size:12px}.readingMaterial{max-height:none;overflow:visible}.readingMaterial p{max-width:65ch}.answerPane{position:sticky;top:95px}@media(max-width:740px){.answerPane{position:static}.completion{gap:7px}.completion>span:last-child{width:100%}}
 
 .choices button{justify-content:flex-start!important;text-align:left!important}.choices button>b{flex-shrink:0}.audio{flex-wrap:wrap;gap:10px}.audioSpeeds{display:flex;gap:4px;flex-wrap:wrap}.audioSpeeds>button{min-width:44px}
+
+.session, .hub { color: var(--foreground); }
+.readingMaterial, .answerPane { background: var(--card); border-color: var(--border); border-radius: 16px; }
+.readingMaterial p { color: var(--foreground); }
+.sessionHeading, .readingMaterial p > b, .session .actionBar > span { color: var(--muted-foreground); }
+.singleQuestion h3 { color: var(--foreground); font-weight: 650; line-height: 1.55; }
+.singleQuestion .choices button {
+  height: auto;
+  min-height: 48px;
+  white-space: normal;
+  align-items: flex-start;
+  color: var(--foreground);
+  border-color: var(--border);
+  gap: 10px;
+  font-size: 15px !important;
+}
+.singleQuestion .choices button b { color: inherit; font-size: inherit; }
+.choices button[aria-pressed=true] { background: var(--secondary); border-color: var(--primary); }
+.choices button.correct { background: #eef8f1; border-color: #8caf97; }
+.optionMarker {
+  box-sizing: border-box;
+  flex: 0 0 16px;
+  height: 16px;
+  margin-top: .3em;
+  border: 1.5px solid var(--muted-foreground);
+  border-radius: 50%;
+}
+button[aria-pressed=true] > .optionMarker {
+  border-color: var(--primary);
+  background: radial-gradient(circle, var(--primary) 45%, transparent 50%);
+}
+.questionNav > button { min-height: 44px; }
+@media (max-width: 740px) {
+  .readingSwitch { background: var(--background); border: 1px solid var(--border); }
+  .readingSwitch > button { min-height: 40px; }
+  .readingSwitch > button[aria-pressed=true] { color: var(--primary); background: var(--secondary); }
+  .singleQuestion .choices button { font-size: 14px !important; }
+}

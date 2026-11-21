@@ -35,3 +35,35 @@
 .roundLabel{margin:12px 0 24px;color:#867b98;font-size:14px}.notice:empty{display:none}.panel{max-width:760px;margin:auto}.setup{padding-top:18px!important}.heading{margin-bottom:16px!important}.card{min-height:250px}.note{display:none}
 
 .ratingLabel{font-size:12px;color:var(--muted-foreground)}.grading button{white-space:normal;font-size:14px;min-width:0;padding-inline:8px}.heading h2{font-size:22px}
+
+.panel { padding: 12px 0; background: transparent; border: 0; max-width: 620px; }
+.heading h2 { font-size: 27px; letter-spacing: -.025em; }
+.row { padding: 8px 12px 2px; }
+.row button { min-height: 40px; }
+.progress { margin: 6px 12px 16px; }
+.card, .setup {
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: clamp(20px, 5vw, 36px);
+}
+.card { min-height: 0; text-align: center; }
+.card h3 { color: var(--foreground); font-size: clamp(36px, 10vw, 58px); line-height: 1.1; }
+.pronunciation { justify-content: center; }
+.pronunciation > button {
+  min-height: 40px;
+  color: var(--primary);
+  background: var(--secondary);
+  border-radius: 12px;
+}
+.prompt {
+  padding: 16px 0 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  border-radius: 0;
+}
+.prompt p { color: var(--foreground); font-size: 17px; margin: 0; }
+.revealed .answer { text-align: left; }
+.grading { background: var(--background); }
+.grading button { min-height: 48px; }
