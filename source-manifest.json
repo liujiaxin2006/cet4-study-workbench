@@ -1,6 +1,6 @@
 {
   "source": "Floot project source snapshot",
-  "version": "1795272340577",
+  "version": "1795272652593",
   "exported_on": "2026-11-21",
   "excluded": [
     "component examples",
@@ -246,9 +246,9 @@
     "floot/helpers/wordBankOfficial.tsx": "554fedf2a32c19c2cf2ac8830f051d53f2d3484849d0eb78c66f2ba4d96b9dc1",
     "floot/helpers/wordBankSupplement.tsx": "3b071edeea246095a62b129d08983f0fb5068cd46898ef77dd014c847ca5f124",
     "floot/helpers/wordMeaningCorrections.tsx": "7faf33cd7bdf03dad95f12335817aa4e7919b79fbf71184daccc1faa5baa37eb",
-    "floot/pages/_index.module.css": "f97410d1502db4e83a41e87b8bd17312025a429c402727281f54a7a939ac53f7",
+    "floot/pages/_index.module.css": "4f45a25643085b118cda4ff3c14956f0d07ce8e7242b43ba83c2255e91af9a98",
     "floot/pages/_index.pageLayout.tsx": "2576801d4564f2890fe8646e557b3c5214128f7a259ca33ad02368121934432a",
-    "floot/pages/_index.tsx": "55b4c19469e40bf5277ddbfe77c5e2e9dbd2672062c406c08e0abf271ced60be",
+    "floot/pages/_index.tsx": "0098f1bb0c0240f3d36d7beb3a3c7e7d8a187db42349f1c965bbad0ef1ac5086",
     "floot/pages/admin.module.css": "f5fe685397d84a7ffb147467714cd8a58ab006f8504ea27a661be3d1ec1bd55e",
     "floot/pages/admin.pageLayout.tsx": "300ba38b4fa23141073b1d1bd751539e329c84ad1cae4f676b9db89bb2027fe9",
     "floot/pages/admin.tsx": "809b955985a529ea460c9e574f5f88605089d12c83269dbd1fab014695547a66",
@@ -264,12 +264,12 @@
     "floot/static/manifest.json": "30f87af62aa2a01ce48af02c4b42b6cda3efe38bebf650b658ad971d0a765415"
   },
   "deployed_release": {
-    "releaseId": "17952723693097da45527-fffc-436e-9021-72cb89e4facf",
-    "publishedAt": "2026-11-21T14:46:07.085Z",
-    "sourceDigest": "913f740095c1b80f08a0aafc0a61f08d9b27adc1fd4df4c01166639a5472e7ac",
+    "releaseId": "17952727433402d5d43cd-ab25-42ca-8943-b82b521709bf",
+    "publishedAt": "2026-11-21T14:52:21.711Z",
+    "sourceDigest": "2c621bd0c17b7d77373423680de7e0b90738071b031e646f71592404489e1e48",
     "sourceFileCount": 342,
     "url": "https://cet4-study-jiaxi.floot.app/",
-    "verification": "Platform typecheck clean; local and platform dock tests passed, including a 350ms hold at the rightmost tab and correct activation on release. Physical iPhone retest pending.",
+    "verification": "Local build and TypeScript passed; platform typecheck clean. Floot preview checked the larger home illustration and CTA on iPhone 393px and desktop 1280px.",
     "corpus": {
       "candidateEntries": 62,
       "readyGroups": 387,

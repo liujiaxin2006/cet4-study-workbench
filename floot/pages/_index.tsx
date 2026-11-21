@@ -21,7 +21,16 @@ export default function HomePage(){
  <header className={styles.topbar}><div className={styles.brand}><span><Bookmark size={18}/></span><strong>四级小签</strong></div><div className={styles.topMetrics}><span className={styles.countdown}>距考试 <b>{days}</b> 天</span><Button variant="ghost" className={styles.timeBadge} onClick={()=>timer.setPaused(!timer.paused)} aria-label={timer.paused?'继续计时':'暂停计时'}><Clock3 size={14}/><span>今日学习 <b>{Math.floor(timer.todaySeconds/60)}:{String(timer.todaySeconds%60).padStart(2,'0')}</b></span>{timer.paused?<Play size={12}/>:timer.running?<Pause size={12}/>:null}</Button></div></header>
  <div className={styles.layout}><nav className={styles.desktopNav} aria-label="主导航">{navigation.map(({id,label,icon:Icon})=><Button variant="ghost" key={id} aria-current={tab===id?'page':undefined} onClick={()=>navigate(id)}><Icon size={19}/>{label}</Button>)}</nav><div ref={scroller} data-study-scroll className={`${styles.content} ${tab==='home'?styles.homeContent:''}`} key={tab}>
  {tab==='home'&&<><div className={styles.pageTitle}><div><p>{new Intl.DateTimeFormat('zh-CN',{month:'long',day:'numeric',weekday:'long'}).format(now)}</p><h1>今天学什么</h1></div><span>{Math.floor(timer.todaySeconds/60)} / {preferences?.dailyMinutes||60} 分钟</span></div>
- <section className={styles.continueCard}><span className={styles.cardLabel}>{task.label}</span><h2>{task.title}</h2><Button size="lg" onClick={()=>task.selection?open(task.selection.paperId,task.selection.groupId):navigate(task.target)}>开始学习<ArrowUpRight size={18}/></Button>{preferences?.showCharacter!==false&&<div className={styles.cardDecoration}><XiaoQian size={164}/></div>}</section>
+ <section className={styles.continueCard}>
+  <div className={styles.taskIntro}>
+   <span className={styles.cardLabel}>{task.label}</span>
+   <h2>{task.title}</h2>
+   <Button size="lg" onClick={() => task.selection ? open(task.selection.paperId, task.selection.groupId) : navigate(task.target)}>
+    开始学习<ArrowUpRight size={18}/>
+   </Button>
+  </div>
+  {preferences?.showCharacter !== false && <div className={styles.cardDecoration} aria-hidden="true"><XiaoQian size={260}/></div>}
+ </section>
  <div className={styles.homeActions}><Button variant="ghost" onClick={()=>setTaskIndex(i=>i+1)}>换一个任务</Button><Button variant="ghost" onClick={()=>navigate('practice')}>自己选题 <ChevronRight size={15}/></Button></div>
  <div className={styles.sectionHeading}><h2>今天学了什么</h2><span>{wordDone} 词 · {doneToday} 组题</span></div><div className={styles.taskGrid}><Button variant="ghost" className={styles.taskCard} onClick={()=>navigate('words')}><span className={styles.taskIcon}><BookOpen size={22}/></span><strong>背单词</strong><small>{wordDone?'今天已学 '+wordDone+' 个':due?'待复习 '+due+' 个':'今日目标 '+(preferences?.dailyNewWords||20)+' 个新词'}</small><ChevronRight size={18}/></Button><Button variant="ghost" className={styles.taskCard} onClick={()=>navigate('practice')}><span className={styles.taskIcon}><Layers size={22}/></span><strong>真题练习</strong><small>{doneToday?'今天完成 '+doneToday+' 组':'选一份材料开始'}</small><ChevronRight size={18}/></Button></div>
  <section className={styles.quickLinks}><Button variant="ghost" onClick={()=>navigate('practice')}><Layers size={18}/>真题套卷<ChevronRight size={16}/></Button><Button variant="ghost" onClick={openReview}><RotateCcw size={18}/>错题复习{catalog.data?.summary.due?<small>{catalog.data.summary.due}</small>:<ChevronRight size={16}/>}</Button></section></>}
